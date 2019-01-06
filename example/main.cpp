@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <thread>
 
 
 unsigned info(const std::vector<std::string> &) {
@@ -58,8 +59,20 @@ int main() {
     // Here we register a new command. The string "info" names the command that
     // the user will have to type in in order to trigger this command (it can
     // be different from the function name).
-    c.RegisterCommand("info", info);
-    c.RegisterCommand("calc", calc);
+    c.RegisterCommand("info", "show information", info);
+    c.RegisterCommand("calc", "calc", calc);
+
+    //xma::Shell::ShellCommand shell;
+    //shell.name = "ShowThreadId";
+    //shell.help = "Show current thread ID";
+    //shell.func = calc;//std::move([](const std::vector<std::string> &argv) {});
+    //c.RegisterCommand(shell);
+
+    std::cout << std::this_thread::get_id() << std::endl;
+
+    c.RegisterCommand("ShowThreadId", "show thread id", [](const std::vector<std::string> &) -> int {
+        std::cout << std::this_thread::get_id() << std::endl;
+    });
 
     // Here we call one of the defaults command of the console, "help". It lists
     // all currently registered commands within the console, so that the user

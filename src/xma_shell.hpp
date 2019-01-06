@@ -5,21 +5,28 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <mutex>
 #include "xma_status.h"
 
 namespace xma {
 
+    using ShellFunc = std::function<int(const std::vector<std::string> &)>;
     class Shell {
         public:
+            using Argv = std::vector<std::string>;
+//            using ShellFunc = std::function<int(const Argv &)>;
 
-            using Args = std::vector<std::string>;
-            using ShellFunc = std::function<int(const Args &)>;
-			
+            struct ShellCommand {
+                std::string name;
+                std::string help;
+                ShellFunc func;
+            };
+
 			//以后需要扩展命令，增加参数与帮助说明信息
-			using RegisteredCommands = std::map<std::string, ShellFunc>;
+			using RegisteredCommands = std::map<std::string, ShellCommand *>;
 
-            Shell(std::string prompt);
-            ~Shell() = default;
+            Shell(std::string &&prompt);
+            virtual ~Shell();
 
 			static Shell & Instance() {
 				static Shell _shell(">>>");
@@ -29,8 +36,9 @@ namespace xma {
 			void Init();
 			void Run();
 
-			//void RegisterCommand(ShellCommand & command);
-            void RegisterCommand(const std::string & command, ShellFunc function);
+			void RegisterCommand(ShellCommand & command);
+            //void RegisterCommand(const std::string & command, ShellFunc function);
+            void RegisterCommand(const std::string & command, const std::string & help, ShellFunc function);
             void SetPrompt(const std::string & prompt);
             std::string GetPrompt() const;
             XmaStatus ExecCommand(const std::string & command);
@@ -42,6 +50,7 @@ namespace xma {
 			static char * CommandGenerator(const char * text, int state);
 			
 		private:
+            std::mutex _mutex;
 			std::string _prompt;
 			
 			static RegisteredCommands _commands;

@@ -17,34 +17,34 @@ namespace xma {
 	
 	Shell::RegisteredCommands Shell::_commands;
 	
-    Shell::Shell(std::string prompt)
+    Shell::Shell(std::string &&prompt)
     {
 		_prompt = prompt;
 		
         rl_attempted_completion_function = &Shell::CommandCompletion;
 
         // 默认命令
-        _commands["help"] = [this](const Args &){
+        RegisterCommand("help", "show this help", [this](const Argv &){
             auto commands = this->_commands;
             std::cout << " Available commands are:\n";
 			
-            for ( auto command : commands ) 
-				std::cout << "\t" << command.first << "\n";
+            for ( auto & command : commands ) 
+				std::cout << "\t" << command.first << "\t" << command.second->help << std::endl;
 			
             return XS_SUCCESS;
-        };
-		_commands["?"] = _commands["help"];
-		
+        });
 
-        _commands["quit"] = [this](const Args &) {
+        RegisterCommand("quit", "quit the process", [](const Argv &) {
             return XS_QUIT;
-        };
+        });
 		
-        _commands["exit"] = [this](const Args &) {
-            return XS_QUIT;
-        };
-
 		Init();
+    }
+
+    Shell::~Shell()
+    {
+        for (auto &cmd: _commands)
+            delete cmd.second;
     }
 
 	void Shell::Init() {
@@ -54,8 +54,15 @@ namespace xma {
 		std::cout << std::endl << std::endl << std::endl;
 	}
 
-    void Shell::RegisterCommand(const std::string & command, ShellFunc function) {
-        _commands[command] = function;
+    void Shell::RegisterCommand(const std::string & command, const std::string & help, ShellFunc func) {
+        ShellCommand *_cmd = new ShellCommand();
+
+        _cmd->name = command;
+        _cmd->help = help;
+        _cmd->func = func;
+
+        std::unique_lock<std::mutex> lock(_mutex);
+        _commands[command] = _cmd;
     }
 
 
@@ -77,7 +84,7 @@ namespace xma {
                     std::back_inserter(inputs));
         }
 
-        if ( inputs.size() == 0 ) 
+        if (inputs.size() == 0) 
 			return XS_SUCCESS;
 
 		auto it = _commands.find(inputs[0]);
@@ -86,7 +93,7 @@ namespace xma {
 			return XS_INTRNL_ERR;
 		}
         
-        return static_cast<XmaStatus>((it->second)(inputs));
+        return static_cast<XmaStatus>((it->second->func)(inputs));
     }
 
     XmaStatus Shell::ExecFile(const std::string & filename) {
