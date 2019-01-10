@@ -26,13 +26,14 @@ namespace xma {
         // 默认命令
         _commands["help"] = [this](const Args &){
             auto commands = this->_commands;
-            std::cout << "Available commands are:\n";
+            std::cout << " Available commands are:\n";
 			
             for ( auto command : commands ) 
 				std::cout << "\t" << command.first << "\n";
 			
             return XS_SUCCESS;
         };
+		_commands["?"] = _commands["help"];
 		
 
         _commands["quit"] = [this](const Args &) {
@@ -42,12 +43,20 @@ namespace xma {
         _commands["exit"] = [this](const Args &) {
             return XS_QUIT;
         };
+
+		Init();
     }
+
+	void Shell::Init() {
+		std::cout <<" ====================================================" << std::endl;
+		std::cout <<" Welcome to eXentible Message Architecture Framework." << std::endl;
+		std::cout <<" ====================================================" << std::endl;
+		std::cout << std::endl << std::endl << std::endl;
+	}
 
     void Shell::RegisterCommand(const std::string & command, ShellFunc function) {
         _commands[command] = function;
     }
-
 
 
     void Shell::SetPrompt(const std::string & prompt) {
@@ -127,6 +136,33 @@ namespace xma {
 
         return ExecCommand(line);
     }
+
+
+	void Shell::Run() {
+		
+		std::cout << " Shell command loop is launched, press '?' for help" << std::endl;
+
+		XmaStatus ret;
+		while (true) {
+			ret = Readline();
+			switch (ret) {
+			case XS_QUIT: 
+				return ;
+
+			case XS_SUCCESS:
+				SetPrompt("$");
+				break;
+
+			case XS_INTRNL_ERR:
+				SetPrompt("!#");
+				break;
+
+			default:
+				break;
+
+			}
+		}
+	}
 
 
     char **Shell::CommandCompletion(const char * text, int start, int end) {

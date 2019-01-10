@@ -8,7 +8,7 @@
 #include "xma_status.h"
 
 namespace xma {
-	
+
     class Shell {
         public:
 
@@ -26,6 +26,10 @@ namespace xma {
 				return _shell;
 			}
 			
+			void Init();
+			void Run();
+
+			//void RegisterCommand(ShellCommand & command);
             void RegisterCommand(const std::string & command, ShellFunc function);
             void SetPrompt(const std::string & prompt);
             std::string GetPrompt() const;
