@@ -30,12 +30,17 @@ class ThreadContext
 public:
 	ThreadContext() = default;
 	~ThreadContext() = default;
-    
+
+	uint32_t QueueSize()
+	{
+		return _event_queues.size();	
+	}
+
     using EventQueue = boost::lockfree::spsc_queue<std::shared_ptr<Task>>;
 
 private:
 	Mailbox _mailbox;
-    
+
     vector<unique_ptr<EventQueue>> _event_queues;
 };
 
@@ -55,6 +60,11 @@ public:
 
 	virtual void Init() {};
 	virtual void Main() = 0;
+
+	uint32_t QueueSize()
+	{
+		return _context.QueueSize();
+	}
 
 	void Run()
 	{

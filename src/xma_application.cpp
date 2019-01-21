@@ -23,10 +23,10 @@ void Application::Show()
 	unique_lock<mutex> lock(_threads_mutex);
 
 	cout << "Thread number: " << _threads.size() << endl;
-	cout << "Id" << "\t" << "Name" << "\t" << "Lcore" << endl;
+	cout << "Id" << "\t" << "Name" << "\t" << "Lcore" << "\t" << "Queuesize" << endl;
 
 	for (auto &t: _threads) {
-		cout << t->Id() << "\t" << t->Name() << "\t" << t->CpuSet() << endl;
+		cout << t->Id() << "\t" << t->Name() << "\t" << t->CpuSet() << "\t" << t->QueueSize() << endl;
 	}
 }
 
