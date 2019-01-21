@@ -1,4 +1,5 @@
 #include "../src/xma_shell.hpp"
+#include "../src/xma_application.hpp"
 
 #include <iostream>
 #include <string>
@@ -50,36 +51,53 @@ unsigned calc(const std::vector<std::string> & input) {
     return 0;
 }
 
-int main() {
-    // We create a console. The '>' character is used as the prompt.
-    // Note that multiple Consoles can exist at once, as they automatically
-    // manage the underlying global readline state.
+using namespace xma;
+
+///----------------------------------Test---------------------------------------
+class MainProcess:public Process
+{
+public:
+	MainProcess(string name, uint64_t cpu_set): Process(name, cpu_set) {}
+	
+	void Init() {
+
+	}
+	
+	void Main() {
+		while (true) {
+			cout << "Process run: " << Name() << endl;
+			this_thread::sleep_for(std::chrono::seconds(2));
+		}
+	}
+private:
+	
+};
+
+
+int main()
+{
+	xma::Application::Init();
+	
+	//all processes/threads should create before application run
+	MainProcess *p = new MainProcess("MainProcess", 0);
+	xma::Application::Register(p);
+
+	MainProcess *p1 = new MainProcess("MainProcess1", 0);
+	xma::Application::Register(p1);		
+	
+	Worker *worker = new Worker("Worker", 0);
+	xma::Application::Register(worker);	
+	
+	
 	xma::Shell &c = xma::Shell::Instance();
+	c.RegisterCommand("info", "show information", info);
+	c.RegisterCommand("calc", "calc", calc);
+	
+	c.RegisterCommand("Test", "Test", [](const std::vector<std::string> &) -> int {
+         std::cout << "This is a test command" << std::endl;
+	});
 
-    // Here we register a new command. The string "info" names the command that
-    // the user will have to type in in order to trigger this command (it can
-    // be different from the function name).
-    c.RegisterCommand("info", "show information", info);
-    c.RegisterCommand("calc", "calc", calc);
-
-    //xma::Shell::ShellCommand shell;
-    //shell.name = "ShowThreadId";
-    //shell.help = "Show current thread ID";
-    //shell.func = calc;//std::move([](const std::vector<std::string> &argv) {});
-    //c.RegisterCommand(shell);
-
-    std::cout << std::this_thread::get_id() << std::endl;
-
-    c.RegisterCommand("ShowThreadId", "show thread id", [](const std::vector<std::string> &) -> int {
-        std::cout << std::this_thread::get_id() << std::endl;
-    });
-
-    // Here we call one of the defaults command of the console, "help". It lists
-    // all currently registered commands within the console, so that the user
-    // can know which commands are available.
-    c.ExecCommand("help");
-
-	c.Run();
+	xma::Application::Run();
 
     return 0;
 }
