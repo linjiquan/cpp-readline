@@ -31,13 +31,15 @@ private:
 class Thread
 {
 public:
-	Thread(string name, uint64_t cpu_set) : _name(name), _cpu_set(cpu_set){
-		_id = _seq++;
+	Thread(string name, uint64_t cpu_set){
+		_name = name;
+		_cpu_set = cpu_set;
+		_id = _thread_seq++;
 
 		_thread = std::thread(&Thread::Run, this);
 	}
 
-    ~Thread() {}
+    virtual ~Thread() {}
 
 	virtual void Init() {};
 	virtual void Main() = 0;
@@ -61,16 +63,16 @@ public:
 		return _cpu_set;
 	}
 
-	uint32_t &Id()
+	int32_t &Id()
 	{
 		return _id;
 	}
 
 private:
+	static atomic_int _thread_seq;
 
-	static atomic_uint _seq;
 
-	uint32_t _id;
+	int32_t _id;
 	string _name;
 	uint64_t _cpu_set;
 	thread _thread;

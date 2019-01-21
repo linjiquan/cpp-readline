@@ -1,7 +1,7 @@
 #    /cpp-readline/cmake/modules/FindReadline.cmake
 #
-#    @author zmij
-#    @date May 17, 2016
+#    @author Brant
+#    @date Jan 21, 2019
 
 # - Try to find readline include dirs and libraries
 #

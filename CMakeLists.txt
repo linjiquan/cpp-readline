@@ -1,12 +1,12 @@
-#    CMakeLists.txt for cpp-readline library
+#    CMakeLists.txt for xma framework library
 #
-#    @author zmij
-#    @date Nov 30, 2015
+#    @author brant
+#    @date Jan 21, 2019
 
 cmake_minimum_required(VERSION 2.6)
 
 # Set library name here
-set(lib_name cpp-readline)
+set(lib_name xma)
 string(TOUPPER ${lib_name} LIB_NAME)
 
 set(_pname ${lib_name})
@@ -18,7 +18,7 @@ endif()
 
 if (${CMAKE_VERSION} VERSION_GREATER "3.0")
     cmake_policy(SET CMP0048 NEW)
-    project(${_pname} VERSION ${_pversion})
+	project(${_pname} VERSION ${_pversion})
 else()
     project(${_pname})
     set(PROJECT_VERSION ${_pversion})
@@ -28,6 +28,7 @@ endif()
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/modules" )
 
 find_package(Readline REQUIRED)
+find_package(Threads REQUIRED)
 
 #options
 option(BUILD_EXAMPLES "Build example application" ON)
@@ -37,7 +38,8 @@ include_directories(
     ${Readline_INCLUDE_DIRS}
 )
 add_definitions("-std=c++11")
-add_definitions(-Wall -Werror -pedantic -Weffc++)
+add_definitions(-Wall -Werror -pedantic)
+#add_definitions(-Wall -Werror -pedantic -Weffc++)
 
 set(${LIB_NAME}_LIB ${lib_name})
 
@@ -49,6 +51,6 @@ endif()
 
 get_directory_property(has_parent PARENT_DIRECTORY)
 if (has_parent)
-    set(${LIB_NAME}_LIB ${lib_name} CACHE INTERNAL "Name of cpp-readline library target")
-    set(${LIB_NAME}_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE INTERNAL "Path to cpp-readline libaray includes" )
+    set(${LIB_NAME}_LIB ${lib_name} CACHE INTERNAL "Name of xma library target")
+    set(${LIB_NAME}_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE INTERNAL "Path to xma libaray includes" )
 endif()

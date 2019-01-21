@@ -5,14 +5,16 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-set(cpp_readline_SRCS
-    Console.cpp
+set(xma_SRCS
+    xma_thread.cpp
+	xma_application.cpp
+	xma_shell.cpp
 )
 
-add_library(${lib_name} SHARED ${cpp_readline_SRCS})
+add_library(${lib_name} SHARED ${xma_SRCS})
 set_target_properties(
     ${lib_name} PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION 1
 )
-target_link_libraries(${lib_name} ${Readline_LIBRARY})
+target_link_libraries(${lib_name} ${Readline_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})

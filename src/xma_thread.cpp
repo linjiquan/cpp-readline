@@ -12,7 +12,7 @@ using namespace std;
 
 namespace xma {
 
-atomic_uint Thread::_seq{0};
+atomic_int Thread::_thread_seq{0};
 
 
 ///----------------------------------Test---------------------------------------

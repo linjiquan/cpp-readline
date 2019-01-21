@@ -60,7 +60,6 @@ public:
 	MainProcess(string name, uint64_t cpu_set): Process(name, cpu_set) {}
 	
 	void Init() {
-
 	}
 	
 	void Main() {
@@ -95,6 +94,7 @@ int main()
 	
 	c.RegisterCommand("Test", "Test", [](const std::vector<std::string> &) -> int {
          std::cout << "This is a test command" << std::endl;
+		 return 0;
 	});
 
 	xma::Application::Run();

@@ -1,4 +1,4 @@
-# The Console scripts support comments. A comment
+# The Shell scripts support comments. A comment
 # is a line that starts with a '#' character.
 # If the character is later in a line it is NOT treated as a comment.
 
