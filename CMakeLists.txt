@@ -29,6 +29,7 @@ set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/modules
 
 find_package(Readline REQUIRED)
 find_package(Threads REQUIRED)
+find_package(Boost REQUIRED)
 
 #options
 option(BUILD_EXAMPLES "Build example application" ON)
@@ -36,6 +37,7 @@ option(BUILD_EXAMPLES "Build example application" ON)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${Readline_INCLUDE_DIRS}
+    ${BOOST_INCLUDEDIR}
 )
 add_definitions("-std=c++11")
 add_definitions(-Wall -Werror -pedantic)

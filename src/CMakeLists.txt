@@ -17,4 +17,4 @@ set_target_properties(
     VERSION ${PROJECT_VERSION}
     SOVERSION 1
 )
-target_link_libraries(${lib_name} ${Readline_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${lib_name} ${Readline_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
