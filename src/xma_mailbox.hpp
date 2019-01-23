@@ -27,7 +27,9 @@ public:
 	
 	void Dispatch() {
 		event_base_dispatch(_base);
-	}		
+	}
+
+
 
 private:
 	event_base* _base;

@@ -8,6 +8,7 @@
 #include <assert.h>
 #include "xma_status.h"
 #include "xma_mailbox.hpp"
+#include "xma_message.h"
 #include "boost/lockfree/spsc_queue.hpp"
 
 using namespace std;
@@ -18,38 +19,27 @@ class Thread;
 class Process;
 class Worker;
 
-class Task
-{
-public:
-    Task() = default;
-    ~Task() = default;
-
-	int Exec() {
-		return 0;
-	}
-};
-
 class ThreadContext
 {
 public:
 	ThreadContext() = default;
 	~ThreadContext() = default;
 
-    using TaskQueue = boost::lockfree::spsc_queue<std::shared_ptr<Task>>;
+    using MsgQueue = boost::lockfree::spsc_queue<std::shared_ptr<Message>>;
 
 	uint32_t QueueSize()
 	{
-		return _task_queues.size();	
+		return _msg_queues.size();	
 	}
 
-	vector<unique_ptr<TaskQueue>> &GetTaskQueue()
+	vector<unique_ptr<MsgQueue>> &GetTaskQueue()
 	{
-		return _task_queues;
+		return _msg_queues;
 	}
 
 
 private:
-    vector<unique_ptr<TaskQueue>> _task_queues;
+    vector<unique_ptr<MsgQueue>> _msg_queues;
 };
 
 
