@@ -34,6 +34,10 @@ find_package(Boost REQUIRED)
 #options
 option(BUILD_EXAMPLES "Build example application" ON)
 
+link_directories(
+	"/usr/local/lib/"
+)
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${Readline_INCLUDE_DIRS}

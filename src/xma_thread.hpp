@@ -23,6 +23,10 @@ class Task
 public:
     Task() = default;
     ~Task() = default;
+
+	int Exec() {
+		return 0;
+	}
 };
 
 class ThreadContext
@@ -31,17 +35,21 @@ public:
 	ThreadContext() = default;
 	~ThreadContext() = default;
 
+    using TaskQueue = boost::lockfree::spsc_queue<std::shared_ptr<Task>>;
+
 	uint32_t QueueSize()
 	{
-		return _event_queues.size();	
+		return _task_queues.size();	
 	}
 
-    using EventQueue = boost::lockfree::spsc_queue<std::shared_ptr<Task>>;
+	vector<unique_ptr<TaskQueue>> &GetTaskQueue()
+	{
+		return _task_queues;
+	}
+
 
 private:
-	Mailbox _mailbox;
-
-    vector<unique_ptr<EventQueue>> _event_queues;
+    vector<unique_ptr<TaskQueue>> _task_queues;
 };
 
 
@@ -71,6 +79,13 @@ public:
 		Init();
 
 		while (true) {
+			for (auto &queue : _context.GetTaskQueue()) {
+				if (queue->empty()) continue;
+				auto evt = queue->front();
+				queue->pop();
+				evt->Exec();
+			}
+
 			Main();
 		}
 	}
@@ -89,6 +104,7 @@ public:
 	{
 		return _id;
 	}
+
 
 private:
 	static atomic_int _thread_seq;
@@ -112,7 +128,11 @@ public:
 	virtual void Main() {
 		cout << "Process running: " << Name() << endl;
 		this_thread::sleep_for(std::chrono::seconds(2));
+		_mailbox.Dispatch();
 	}
+
+private:
+	Mailbox _mailbox;
 };
 
 
