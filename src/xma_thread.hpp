@@ -10,6 +10,7 @@
 #include "xma_mailbox.hpp"
 #include "xma_message.h"
 #include "boost/lockfree/spsc_queue.hpp"
+//#include "xma_listener.h"
 
 using namespace std;
 
@@ -36,7 +37,6 @@ public:
 	{
 		return _msg_queues;
 	}
-
 
 private:
     vector<unique_ptr<MsgQueue>> _msg_queues;

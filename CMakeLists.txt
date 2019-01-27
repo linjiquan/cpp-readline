@@ -44,7 +44,7 @@ include_directories(
     ${BOOST_INCLUDEDIR}
 )
 add_definitions("-std=c++11")
-add_definitions(-Wall -Werror -pedantic)
+add_definitions(-g -Wall -Werror -pedantic)
 #add_definitions(-Wall -Werror -pedantic -Weffc++)
 
 set(${LIB_NAME}_LIB ${lib_name})

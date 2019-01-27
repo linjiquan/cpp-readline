@@ -78,14 +78,14 @@ int main()
 	xma::Application::Init();
 	
 	//all processes/threads should create before application run
-	MainProcess *p = new MainProcess("MainProcess", 0);
-	xma::Application::Register(p);
+	//MainProcess *p = new MainProcess("MainProcess", 0);
+	//xma::Application::Register(p);
 
-	MainProcess *p1 = new MainProcess("MainProcess1", 0);
-	xma::Application::Register(p1);		
+	//MainProcess *p1 = new MainProcess("MainProcess1", 0);
+	//xma::Application::Register(p1);		
 	
-	Worker *worker = new Worker("Worker", 0);
-	xma::Application::Register(worker);	
+	//Worker *worker = new Worker("Worker", 0);
+	//xma::Application::Register(worker);	
 	
 	
 	xma::Shell &c = xma::Shell::Instance();

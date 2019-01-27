@@ -8,6 +8,7 @@
 #include <future>
 #include "xma_application.hpp"
 #include "xma_shell.hpp"
+#include "xma_listener.h"
 
 using namespace std;
 
@@ -35,8 +36,24 @@ void Application::Show()
 void Application::Init() {	
 	xma::Shell &c = xma::Shell::Instance();
 
+	static xma::ProcessEx proc_("Init", 0);
+
 	c.RegisterCommand("ListThread", "List all threads", [](const std::vector<std::string> &) -> int {
 		Show();
+		return 0;
+	});
+
+	c.RegisterCommand("TestMsg", "Send a test message", [&](const std::vector<std::string> &argv) -> int {
+		if (argv.size() <= 1) {
+			std::cout << "Please input the send message, like TestMsg 'helloworld' " << std::endl;
+			return -1;
+		}
+
+		std::cout << "Execute cmd: TestMsg " << argv[1] << std::endl;
+		
+		Msg *msg = new Msg(argv[1]);
+		xma::ProcessEx::SendMsg(proc_, msg);
+
 		return 0;
 	});
 }
