@@ -1,4 +1,6 @@
 #pragma once
+
+// C/C++
 #include <thread>
 #include <vector>
 #include <map>
@@ -6,24 +8,26 @@
 #include <mutex>
 #include <atomic>
 #include <assert.h>
-#include "xma_status.h"
-#include "xma_mailbox.hpp"
 
-using namespace std;
+// Internal
+#include "xma_status.h"
 
 namespace xma {
-
-struct Message
-{
-	Message(){
+	
+class Msg{
+public:
+	Msg(std::string sval): sval_(sval){		
 	}
 
-	void Exec() {
+	~Msg() {}
 
+	std::string &GetValue()
+	{
+		return sval_;
 	}
 
-	Mailbox *sender;
-	Mailbox *receiver;
+private:
+	uint16_t type_;
+	std::string sval_;
 };
-
 }

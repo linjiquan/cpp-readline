@@ -1,5 +1,4 @@
-#include "xma_shell.hpp"
-
+// C/C++
 #include <iostream>
 #include <fstream>
 #include <functional>
@@ -7,11 +6,15 @@
 #include <iterator>
 #include <sstream>
 #include <unordered_map>
-
 #include <cstdlib>
 #include <cstring>
+
+// readline
 #include <readline/readline.h>
 #include <readline/history.h>
+
+// Internal
+#include "xma_shell.h"
 
 namespace xma {
 	
@@ -24,7 +27,7 @@ namespace xma {
         rl_attempted_completion_function = &Shell::CommandCompletion;
 
         // 默认命令
-        RegisterCommand("help", "show this help", [this](const Argv &){
+        RegisterCommand("help", "show this help", [&](const ShellFuncArgs &) -> int{
             auto commands = this->_commands;
             std::cout << " Available commands are:\n";
 			
@@ -34,7 +37,7 @@ namespace xma {
             return XS_SUCCESS;
         });
 
-        RegisterCommand("quit", "quit the process", [](const Argv &) {
+        RegisterCommand("quit", "quit the process", [&](const ShellFuncArgs &) {
             return XS_QUIT;
         });
 		

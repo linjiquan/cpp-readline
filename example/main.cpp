@@ -1,6 +1,6 @@
-#include "../src/xma_shell.hpp"
-#include "../src/xma_application.hpp"
-
+#include "../src/xma_shell.h"
+#include "../src/xma_application.h"
+#include "../src/xma_process.h"
 #include <iostream>
 #include <string>
 #include <thread>
@@ -54,25 +54,6 @@ unsigned calc(const std::vector<std::string> & input) {
 using namespace xma;
 
 ///----------------------------------Test---------------------------------------
-class MainProcess:public Process
-{
-public:
-	MainProcess(string name, uint64_t cpu_set): Process(name, cpu_set) {}
-	
-	void Init() {
-	}
-	
-	void Main() {
-		while (true) {
-			cout << "Process run: " << Name() << endl;
-			this_thread::sleep_for(std::chrono::seconds(2));
-		}
-	}
-private:
-	
-};
-
-
 int main()
 {
 	xma::Application::Init();
@@ -96,6 +77,9 @@ int main()
          std::cout << "This is a test command" << std::endl;
 		 return 0;
 	});
+
+	Process test("Test", 0);
+	Process test1("Test1", 0);
 
 	xma::Application::Run();
 

@@ -1,21 +1,24 @@
 #pragma once
 
+// C/C++
 #include <functional>
 #include <string>
 #include <vector>
 #include <memory>
 #include <map>
 #include <mutex>
+
+// Internal
+#include "xma_internal.h"
 #include "xma_status.h"
 
 namespace xma {
 
-    using ShellFunc = std::function<int(const std::vector<std::string> &)>;
+    using ShellFunc     = std::function<int(const std::vector<std::string> &)>;
+    using ShellFuncArgs = std::vector<std::string>;
+
     class Shell {
         public:
-            using Argv = std::vector<std::string>;
-//            using ShellFunc = std::function<int(const Argv &)>;
-
             struct ShellCommand {
                 std::string name;
                 std::string help;
@@ -25,8 +28,8 @@ namespace xma {
 			//以后需要扩展命令，增加参数与帮助说明信息
 			using RegisteredCommands = std::map<std::string, ShellCommand *>;
 
-            Shell(std::string &&prompt);
-            virtual ~Shell();
+      Shell(std::string &&prompt);
+      virtual ~Shell();
 
 			static Shell & Instance() {
 				static Shell _shell(">>>");
@@ -45,16 +48,15 @@ namespace xma {
             XmaStatus ExecFile(const std::string & filename);
             XmaStatus Readline();
 			
-        private:			
+    private:			
 			static char **CommandCompletion (const char *text, int start, int end);
 			static char * CommandGenerator(const char * text, int state);
 			
 		private:
-            std::mutex _mutex;
+      std::mutex _mutex;
 			std::string _prompt;
 			
 			static RegisteredCommands _commands;
-			
     };
 }
 

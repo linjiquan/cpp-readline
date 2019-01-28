@@ -1,3 +1,4 @@
+// C/C++
 #include <iostream>
 #include <atomic>
 #include <vector>
@@ -6,37 +7,42 @@
 #include <mutex>
 #include <condition_variable>
 #include <future>
-#include "xma_application.hpp"
-#include "xma_shell.hpp"
-#include "xma_listener.h"
 
-using namespace std;
+
+// Linux/POSIX
+#include <unistd.h>
+
+// Internal
+#include "xma_internal.h"
+#include "xma_application.h"
+#include "xma_shell.h"
+#include "xma_process.h"
 
 namespace xma {
-///------------------------------Application-------------------------------------
-//Thread reflection
-vector<Thread *> Application::_threads;
-mutex Application::_threads_mutex;
 
 //
 void Application::Show()
 {
-	unique_lock<mutex> lock(_threads_mutex);
+  ThreadList threads = ThreadMgr::GetThreadList();
 
-	cout << "Thread number: " << _threads.size() << endl;
-	cout << "Id" << "\t" << "Name" << "\t" << "Lcore" << "\t" << "Queuesize" << endl;
+  printf ("Thread number: %lu\n", threads.size());
+  printf ("%-5s %-20s %-5s %-5s %-5s\n", "Id", "Name", "Lcore", "Tid", "State");
 
-	for (auto &t: _threads) {
-		cout << t->Id() << "\t" << t->Name() << "\t" << t->CpuSet() << "\t" << t->QueueSize() << endl;
-	}
+  for (auto &t: threads) {
+    printf ("%-5u %-20s %-5u %-5u %-5u\n", t->Id(), t->Name().c_str(), t->GetRunningCore(), t->Tid(), static_cast<int>(t->GetState()));
+  }
 }
 
+void Application::Exit()
+{
+  ThreadMgr::Exit();
+}
 
 //change the currently thread to xma thread
 void Application::Init() {	
 	xma::Shell &c = xma::Shell::Instance();
 
-	static xma::ProcessEx proc_("Init", 0);
+	static xma::Process proc_("Init", 0);
 
 	c.RegisterCommand("ListThread", "List all threads", [](const std::vector<std::string> &) -> int {
 		Show();
@@ -52,7 +58,7 @@ void Application::Init() {
 		std::cout << "Execute cmd: TestMsg " << argv[1] << std::endl;
 		
 		Msg *msg = new Msg(argv[1]);
-		xma::ProcessEx::SendMsg(proc_, msg);
+		proc_.SendMsg(msg);
 
 		return 0;
 	});
@@ -67,15 +73,10 @@ void Application::Run() {
 	c.ExecCommand("help");
 	
 	c.Run();
+
+	Exit();
 }
 
-bool Application::Register(Thread *t)
-{
-	unique_lock<mutex> lock(_threads_mutex);
-	_threads.push_back(t);
-
-	return true;
-}
 }
 
 
