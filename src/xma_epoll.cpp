@@ -19,6 +19,12 @@ namespace xma {
 		events_.events = 0;
 	}
 	
+	EpollListener::EpollListener(std::string name): Listener(name), epoll_(nullptr), fd_(-1) 
+	{
+		events_.data.ptr = this;
+		events_.events = 0;
+	}
+
 	EpollListener::~EpollListener() 
 	{ 
 		if (fd_ != -1) 
@@ -28,6 +34,11 @@ namespace xma {
 	bool EpollListener::AddEvents(uint events)
 	{
 		XMA_DEBUG("(obj=%p) events = 0x%x", (void *)this, events);
+
+		if (GetFd() == -1) {
+			XMA_DEBUG("%s: No associated FD.\n", Name().c_str());
+			return false;
+		}
 
 		// Check if the bit mask will be changed by the update
 		if ((events_.events | events) != events_.events)
@@ -50,6 +61,11 @@ namespace xma {
 	bool EpollListener::RemoveEvents(uint events)
 	{
 		XMA_DEBUG( "(obj=%p) events = 0x%x", (void *)this, events );
+		
+		if (GetFd() == -1) {
+			XMA_DEBUG("%s: No associated FD", Name().c_str());
+			return false;
+		}
 
 		// Check if the bit mask will be changed by the update
 		if(events_.events & events)
@@ -72,6 +88,11 @@ namespace xma {
 	int EpollListener::GetFd() 
 	{ 
 		return fd_; 
+	}
+	
+	void EpollListener::SetFd(int fd) 
+	{ 
+		fd_ = fd; 
 	}
 
 	void EpollListener::SetEpoll(Epoll *epoll)

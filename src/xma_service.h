@@ -43,11 +43,6 @@ public:
 		OnInit();
 	}
 
-	virtual bool SendMsg(Msg *msg) {
-		std::cout << "The basic SendMsg is not implemented." << std::endl;
-		return false;
-	}
-
 	virtual void OnInit() {
 		std::cout << "The basic OnInit()" << std::endl;
 	}

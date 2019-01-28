@@ -11,6 +11,8 @@ class Epoll;
 class EpollListener: public Listener {
 public:
 	EpollListener(int fd, std::string name);
+	EpollListener(std::string name);
+	
 	virtual ~EpollListener();
 	
 	/// Add one or more events to listen for
@@ -21,7 +23,8 @@ public:
 	/// The event mask of the FD will be updated if changed
 	/// @param events   An EPOLL event or event bitmask
 	bool RemoveEvents(uint events);
-	
+
+	void SetFd(int fd);
 	int GetFd();
 	void SetEpoll(Epoll *);
 private: 

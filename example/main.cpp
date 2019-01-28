@@ -1,9 +1,15 @@
-#include "../src/xma_shell.h"
-#include "../src/xma_application.h"
-#include "../src/xma_process.h"
+
+// C/C++
 #include <iostream>
 #include <string>
 #include <thread>
+
+
+// Internal
+#include "../src/xma_shell.h"
+#include "../src/xma_application.h"
+#include "../src/xma_process.h"
+
 
 
 unsigned info(const std::vector<std::string> &) {
