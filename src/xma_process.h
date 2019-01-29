@@ -16,24 +16,48 @@
 
 
 // Internal
-#include "xma_internal.h"
+#include "xma_listener.h"
+#include "xma_epoll.h"
 #include "xma_service.h"
 #include "xma_thread.h"
+#include "xma_message.h"
 
 namespace xma {
-class ProcessMsgLienster: public EpollListener
+class ProcessMsgListener: public EpollListener
+{  
+public:
+	ProcessMsgListener(std::string name, ListenerContainer c, int fd);
+	~ProcessMsgListener();
+  
+	void Dispatch(Msg *);
+	bool DoHandle(void * data) override;
+};
+
+// each process should have one default process service
+// used to receive msg, timer check and so on
+class ProcessService: public Service
 {
 public:
-	ProcessMsgLienster(Process *context, int fd, std::string name);
-	bool DoHandle(void * data) override;
+  ProcessService(std::string name);
+  ~ProcessService();
+
+  bool SendMsg(Msg *msg);
+
 private:
-	Process *context_;
+  void OnInit();
+  void CreateMsgConveyers(); 
+#define msg_writer msgconveyers_[1]
+#define msg_reader msgconveyers_[0]	
+  
+private:
+  ProcessMsgListener *rdlistener_;
+  int msgconveyers_[2];		  
 };
-	
+
 class Process: public Thread
 {
 public:
-	Process(std::string name, int32_t cpu_set): Thread(name, cpu_set), rdlistener_(nullptr) {}
+	Process(std::string name, int32_t cpu_set): Thread(name, cpu_set) {}
 	virtual ~Process();
 
 	void Init();
@@ -46,12 +70,8 @@ public:
 		std::cout << "Basic Process OnInit()" << std::endl;
 	}
 	
-#define msg_writer msgconveyers_[1]
-#define msg_reader msgconveyers_[0]	
 private:
 	ServiceList svcs_;
-	ProcessMsgLienster * rdlistener_; //message reader listener
-	//ProcessMsgLienster * wdlistener_; //message writer listener
-	int msgconveyers_[2];		
+    ProcessService *msg_svc_;
 };
 }

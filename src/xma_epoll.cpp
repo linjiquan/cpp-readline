@@ -13,13 +13,13 @@
 
 namespace xma {
 ///------------------------------------------------EpollLienster-----------------------------------------
-	EpollListener::EpollListener(int fd, std::string name): Listener(name), epoll_(nullptr), fd_(fd) 
+	EpollListener::EpollListener(std::string name, ListenerContainer c, int fd): Listener(name, c), fd_(fd), epoll_(nullptr) 
 	{
 		events_.data.ptr = this;
 		events_.events = 0;
 	}
 	
-	EpollListener::EpollListener(std::string name): Listener(name), epoll_(nullptr), fd_(-1) 
+	EpollListener::EpollListener(std::string name, ListenerContainer c): Listener(name, c), epoll_(nullptr) 
 	{
 		events_.data.ptr = this;
 		events_.events = 0;
@@ -112,9 +112,9 @@ namespace xma {
 
   Epoll::~Epoll()
   {
+    XMA_DEBUG("EpollFD destroyed: obj=%p, fd=%d", (void *)this, epoll_fd_);
     close(epoll_fd_);
 	  epoll_fd_ = -1;
-    XMA_DEBUG("EpollFD destroyed: obj=%p, fd=%d", (void *)this, epoll_fd_);
   }
 
   void Epoll::Add(EpollListener* l)

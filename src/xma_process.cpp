@@ -5,16 +5,28 @@
 namespace xma {
 
 ///-----------------------------ProcessMsgLienster---------------------------------------
-ProcessMsgLienster::ProcessMsgLienster(Process *context, int fd, std::string name): EpollListener(fd, name), context_(context){
+ProcessMsgListener::ProcessMsgListener(std::string name, ListenerContainer c, int fd): EpollListener(name, c, fd)
+{
 	
-	XMA_DEBUG("CreateMsgLienster(): %s", Name().c_str());
+	XMA_DEBUG("ProcessMsgLienster(): %s", Name().c_str());
 
-	Epoll &epoll = context->GetContext().GetEpoll();
+	Epoll &epoll = c->GetContext()->GetContext().GetEpoll();
 	epoll.Add(this);
 	AddEvents(EPOLLIN | EPOLLERR | EPOLLHUP);
 }
 
-bool ProcessMsgLienster::DoHandle(void * data)
+ProcessMsgListener::~ProcessMsgListener() {
+	XMA_DEBUG("~ProcessMsgLienster(): %s", Name().c_str());
+}
+
+void ProcessMsgListener::Dispatch(Msg *msg)
+{
+  XMA_DEBUG("%s: msg received: %p, %s", Name().c_str(), (void *)msg, msg->GetValue().c_str());
+  XMA_DEBUG("%s: free msg: %p", Name().c_str(), (void *)msg);  
+  delete msg;
+}
+
+bool ProcessMsgListener::DoHandle(void * data)
 {
 	struct epoll_event *ee = (epoll_event *)data;
 	
@@ -25,22 +37,20 @@ bool ProcessMsgLienster::DoHandle(void * data)
 		char *buff[MSG_CNT];
 		int nr = read(GetFd(), &buff, sizeof(buff));
 		if (-1 == nr) {
-			std::cout << "Read error: " << strerror(errno) << std::endl;
+			XMA_DEBUG("Read error: %s, err=%s", Name().c_str(), strerror(errno));
+            return false;
 		} else if (nr % sizeof(buff[0])) {
-			std::cout << "Invalid message received. bytes: " << nr << std::endl;
+			XMA_DEBUG("Invalid message received: %s, bytes=%d", Name().c_str(), nr);
 			return false;
 		}
 
 		int msg_cnt = nr / sizeof(buff[0]);
 		for (int i = 0; i < msg_cnt; ++i) {
 			Msg *msg = reinterpret_cast<Msg *>(buff[i]);
-			std::cout << "Msg received: " << msg << std::endl;
-			std::cout << "Msg value: " << msg->GetValue() << std::endl;
+			Dispatch(msg);
 		}
 
 		return true;
-
-
 	} else if (ee->events | EPOLLOUT) {
 	//	int fd = ev->data.fd;
 	//	assert (fd == msg_writer);
@@ -54,42 +64,87 @@ bool ProcessMsgLienster::DoHandle(void * data)
 	return true;
 }
 
-///---------------------------Process---------------------------------------------------------
-Process::~Process()
+///-----------------------------Process service---------------------------------------
+ProcessService::ProcessService(std::string name): Service(name), rdlistener_(nullptr)
 {
-	if (nullptr == rdlistener_)
-		delete rdlistener_;
 }
 
-void Process::CreateMsgLienster() 
+ProcessService::~ProcessService()
+{
+  // msg_reader is managered by the rdlistener_  
+	if (msg_writer)
+		::close(msg_writer);
+
+  if (rdlistener_ != nullptr)
+    delete rdlistener_;
+}
+
+void ProcessService::OnInit()
+{
+  assert (rdlistener_ == nullptr);
+  
+  CreateMsgConveyers();
+  
+  rdlistener_ = new ProcessMsgListener(Name(), this, msg_reader);
+}
+
+
+void ProcessService::CreateMsgConveyers() 
 {
 	//create pipes for the inter process message
 	//In the kernel, the pipe is marked writable in select/poll/epoll
 	//only when the PIPE BUFFER is EMPTY, otherwise the pipe is ONLY marked
 	//readable. So I can't use the non-block mode for the writer
 	if (-1 == pipe (msgconveyers_)) {
-		std::cout << "Create pipe2 failed " << strerror(errno) << std::endl;
-		assert (0);
+		throw std::runtime_error(std::string("Failed to create process msg listener, name:") + 
+			Name() + " err:" + strerror(errno));
 	}
 
 	int val;
 	if (-1 == (val = fcntl(msg_reader, F_GETFL, 0))) {
-		std::cout << "Get msg reader option failed, err=" << strerror(errno) << std::endl;
-		assert (0);
+		throw std::runtime_error(std::string("Failed to create process msg listener, name:") + 
+			Name() + " err:" + strerror(errno));
 	}
 
 	if (-1 == fcntl(msg_reader, F_SETFL, val | O_NONBLOCK)) {
-		std::cout << "Set msg reader to non-block mode failed, err=" << strerror(errno) << std::endl;
-		assert (0);
+		throw std::runtime_error(std::string("Failed to create process msg listener, name:") + 
+			Name() + " err:" + strerror(errno));
 	}
+}
+
+bool ProcessService::SendMsg(Msg *msg)
+{
+	if (msg == nullptr)
+		return true;
+
+	//send the message pointer
+	int n = write(msg_writer, &msg, sizeof(msg));
+	if (-1 == n) {
+		XMA_DEBUG("Send msg failed: %p, err: %s", static_cast<void *>(msg), strerror(errno));
+		return false;
+	}
+
+	XMA_DEBUG("Send msg done: %p, size: %d", static_cast<void *>(msg), n);
 	
-	rdlistener_ = new ProcessMsgLienster(this, msg_reader, Name() + "-msg_reader");
-}	
+	return true;  
+}
+
+
+
+
+///---------------------------Process-------------------------------------------------
+Process::~Process()
+{
+  if (msg_svc_ != nullptr)
+    delete msg_svc_;
+}
 
 void Process::Init() {
 	//add the default service
-	CreateMsgLienster();
-	
+	msg_svc_ = new ProcessService(Name() + "-" + "msg-service");
+  
+  AddService(msg_svc_);
+  
 	OnInit();
 	
 	for (auto &s: svcs_) 
@@ -100,17 +155,8 @@ void Process::Init() {
 
 bool Process::SendMsg(Msg *msg)
 {
-	assert (msg != nullptr);
-
-	//send the message pointer
-	int n = write(msg_writer, &msg, sizeof(msg));
-	if (-1 == n)
-		return false;
-
-	std::cout << "Msg send: " << &msg << " send size: " << n << std::endl;
-	std::cout << "Msg value: " << msg->GetValue() << std::endl;
-	
-	return true;
+  assert (msg_svc_ != nullptr);
+  return msg_svc_->SendMsg(msg);
 }
 
 void Process::Main() {

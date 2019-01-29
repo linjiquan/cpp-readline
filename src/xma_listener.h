@@ -19,6 +19,7 @@
 #include "xma_internal.h"
 #include "xma_context.h"
 #include "xma_message.h"
+#include "xma_service.h"
 
 namespace xma {
 
@@ -26,12 +27,9 @@ namespace xma {
 class Listener;
 class Service;
 class Epoll;
-class MsgListener;
-class ProcessEx;
-class ProcessService;
 
 using ListenerList = std::list<Listener *>;
-
+using ListenerContainer = Service *;
 
 struct ListenerStats
 {
@@ -41,10 +39,14 @@ struct ListenerStats
 	uint64_t fail;
 };
 
-// The basic Listener class
+// Listener is used to receive data in service, each Listener should 
+// be contained in one service as its container
+// Compared to use polymorphism, it is better to use the intra-class:
+// 1. To avoid Naming conflict
+// 2. Easy to contain Thousands of listeners in one parent container
 class Listener {
 public:
-	Listener(std::string name): listener_name_(name), context_(nullptr) {
+	Listener(std::string name, ListenerContainer container): listener_name_(name), container_(container) {
 		Register(this);
 	}
 
@@ -52,12 +54,12 @@ public:
 		UnRegister(this);
 	}
 
-	void SetContext(Context *context) {
-		context_ = context;
+	void SetContainer(ListenerContainer container) {
+		container_ = container;
 	}		
 	
-	Context * GetContext() {
-		return context_;
+	ListenerContainer GetContainer() {
+		return container_;
 	}
 
 	std::string &Name() { 
@@ -104,7 +106,7 @@ public:
 private:
 	ListenerStats stats_;
 	std::string listener_name_;
-	Context * context_;
+	ListenerContainer container_;
 
 private:
 	static ListenerList listeners_;

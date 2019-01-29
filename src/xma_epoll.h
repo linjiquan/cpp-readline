@@ -10,8 +10,8 @@ class Epoll;
 /// An C++ wrapper for fd that can be added to Epoll object
 class EpollListener: public Listener {
 public:
-	EpollListener(int fd, std::string name);
-	EpollListener(std::string name);
+	EpollListener(std::string name, ListenerContainer c, int fd);
+	EpollListener(std::string name, ListenerContainer c);
 	
 	virtual ~EpollListener();
 	
@@ -24,12 +24,13 @@ public:
 	/// @param events   An EPOLL event or event bitmask
 	bool RemoveEvents(uint events);
 
-	void SetFd(int fd);
 	int GetFd();
+	void SetFd(int fd);
+
 	void SetEpoll(Epoll *);
 private: 
+  int fd_;
 	Epoll *epoll_;
-	int fd_;
 	struct epoll_event events_;
 };	
 
