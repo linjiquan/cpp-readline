@@ -6,13 +6,15 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(xma_SRCS
+	xma_timer.cpp
 	xma_service.cpp
 	xma_listener.cpp
-    xma_thread.cpp
+  xma_thread.cpp
 	xma_application.cpp
 	xma_shell.cpp
 	xma_process.cpp
 	xma_epoll.cpp
+	xma_socket.cpp
 )
 
 add_library(${lib_name} SHARED ${xma_SRCS})

@@ -25,12 +25,45 @@ namespace xma {
 		events_.events = 0;
 	}
 
+
 	EpollListener::~EpollListener() 
 	{ 
-		if (fd_ != -1) 
-			close(fd_);
+    Close();
 	}
-	
+  
+  void EpollListener::Close()
+  {
+		if (fd_ != -1 && epoll_) {
+      epoll_->Remove(this);
+			::close(fd_);
+			XMA_DEBUG("%s: close fd=%d\n", Name().c_str(), fd_);
+      fd_ = -1;
+		}  
+  }
+  
+  bool EpollListener::Start(int fd)
+  {
+		assert (epoll_ != nullptr);
+
+    if (fd_ != -1) {
+      XMA_DEBUG("This listener is still using by fd %d", fd_);
+      return false;
+    }
+
+    if (fd_ == fd) {
+      XMA_DEBUG ("Same FD. fd=%d", fd_);
+      return true;
+    }
+
+    fd_ = fd;
+    
+		events_.data.ptr = this;
+		events_.events = 0;
+
+    epoll_->Add(this);
+
+		return true;
+  }	
 	bool EpollListener::AddEvents(uint events)
 	{
 		XMA_DEBUG("(obj=%p) events = 0x%x", (void *)this, events);

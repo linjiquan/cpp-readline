@@ -27,7 +27,11 @@ public:
 	int GetFd();
 	void SetFd(int fd);
 
+  // in order to reuse an EpollListener for reconnection
+  void Close();
+  bool Start(int fd);
 	void SetEpoll(Epoll *);
+  Epoll *GetEpoll() { return epoll_; }
 private: 
   int fd_;
 	Epoll *epoll_;

@@ -33,7 +33,6 @@ using ListenerContainer = Service *;
 
 struct ListenerStats
 {
-	ListenerStats(): recv(0), succ(0), fail(0) {}
 	uint64_t recv;
 	uint64_t succ;
 	uint64_t fail;
@@ -47,6 +46,7 @@ struct ListenerStats
 class Listener {
 public:
 	Listener(std::string name, ListenerContainer container): listener_name_(name), container_(container) {
+    memset (&stats_, 0x00, sizeof(stats_));
 		Register(this);
 	}
 

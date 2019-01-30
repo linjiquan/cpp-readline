@@ -16,6 +16,5 @@ namespace xma {
 ServiceList Service::services_;
 std::mutex Service::mutex_;
 
-
 }
 
