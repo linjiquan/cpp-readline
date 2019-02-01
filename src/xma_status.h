@@ -5,6 +5,7 @@
 #define XMA_CASE_STR(state) case state:return #state;break;
 #define XMA_CASE_STR_END()  default:return "Unknown";break;}
 #endif
+
 typedef enum _xma_status_
 {
 	XS_SUCCESS 		  = 0,				/* Successful status         */

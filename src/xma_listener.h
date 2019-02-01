@@ -100,6 +100,8 @@ public:
 	
 	std::string &GetListenerName() { return listener_name_; }
 
+  static void List();
+
 	void IncRecv() { stats_.recv++; }
 	void IncSucc() { stats_.succ++; }
 	void IncFail() { stats_.fail++; }

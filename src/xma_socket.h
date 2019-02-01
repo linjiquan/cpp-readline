@@ -23,6 +23,7 @@
 #include "xma_timer.h"
 namespace xma {
 
+class TcpSocket;
 class StreamSocket;
 
 //Copied /rom PNG 
@@ -49,6 +50,7 @@ struct SocketStats
 	uint64_t tx_direct;
   uint64_t buff_full;
   uint64_t accepted;
+  uint64_t accepted_failed;
   uint64_t closed_by_peer;
   uint64_t rx_cache;  
   uint64_t rx_cache_bytes;
@@ -57,6 +59,7 @@ struct SocketStats
   uint64_t rx_dropped_bytes;
   uint64_t rx_oops;       // times for read to direct first, then move to cache
   uint64_t rx_oops_bytes; // bytes for read to direct first, then move to cache
+  uint64_t initiative_closed;
 };
 
 class Socket : public EpollListener
@@ -69,6 +72,18 @@ public:
     ResetStats();
   }
 	virtual ~Socket() {}
+
+
+	enum class State
+	{
+    CREATED, LISTENING, CONNECTING, CONNECTED, FULL, FAILED
+	};
+
+  enum class Error
+	{
+    NO_ERR, SYS_ERR, PARAM_ERR, NO_SPACE, PEER_CLOSED, READ_FAIL, 
+    WRITE_FAIL, STATE_ERR, NOT_READY, UNKNOWN_EVENT, 
+	};
 
   
 	bool DoHandle(void * data) override;
@@ -85,52 +100,58 @@ public:
 	///           <0 means error, and errno is set appropriately.
 	virtual int ReadMsg(char* msg, uint32_t len) = 0;
   
-	virtual bool OpenClient(const std::string& peer_addr, uint16_t peer_port, int af) = 0;
-	virtual bool OpenServer(const std::string& addr, uint16_t port, int af) = 0;
+	virtual bool OpenClient(const std::string& peer_addr, uint16_t peer_port, int af);
+	virtual bool OpenServer(const std::string& addr, uint16_t port, int af);
 
+
+  /// event sequence:
+  /// Read:       => OnRead, OnError
+  /// Write:      => OnWrite, OnError
+  /// Connected:  => OnConnected, OnError
+  /// Accept:     => OnAccept, OnError
+  /// OnClose is not supported yet.
+  /// notes: there is no close event, application need to close
+  ///        socket in the right time, it is the application's 
+  ///        responsibity
+  /// TBD: 1, manager mode: 
+  ///             1.1 auto disconnect mode
+  ///             1.2 auto re-connect mode
+  ///             1.3 ... 
 
   ///wired anytime when error occours
   ///it is better to be override in the application level
   ///like change the application status and something like this
-  virtual bool OnError()  {return true;}
+  virtual bool OnError(Error err_code);
 
   ///wired when new connection reach
-  virtual bool OnAccept(StreamSocket *stream_socket) {return true;}
+  virtual bool OnAccept(StreamSocket *stream_socket);
   
   // wired after connect success
-  virtual bool OnConnected() { return true; }
+  virtual bool OnConnected();
 
   ///wired when FD readable
   ///Currently, I prefer to override it in the application level
   ///Maybe later, we can define a common msg hdr, then I can provider 
   ///a common read API here
-  virtual bool OnRead() { throw std::runtime_error("not implemented yet");}
+  virtual bool OnRead();
 
   ///wired when FD writable
   ///application don't override it
   ///for the package socket, it can be overridded in application level
   ///it is not tested till now
-  virtual bool OnWrite() { return true;}
+  virtual bool OnWrite();
+
+  virtual bool OnClose();
+  
+  SocketStats &GetStats() { return stats_; }
 
 protected:
   virtual bool Accept() = 0;
   virtual bool Write()   = 0;
-  virtual bool Connected() { return true; }
   virtual bool Read() {
    throw std::runtime_error("not supported yet");    
   }
   
-
-	enum class State
-	{
-    CREATED, LISTENING, CONNECTING, CONNECTED, FULL, FAILED
-	};
-
-  enum class Error
-	{
-    NO_ERR, SYS_ERR, PARAM_ERR, NO_SPACE, PEER_CLOSED, READ_FAIL, 
-    WRITE_FAIL, STATE_ERR, NOT_READY, UNKNOWN_EVENT, 
-	};
 
 	State GetState() const { return state_; }
 	void SetState( State state ) { state_ = state; }
@@ -152,8 +173,7 @@ protected:
 
   void ResetStats() { memset(&stats_, 0x00, sizeof(stats_)); }
 
-  const char * StateToString();
-
+  bool StoreAddrInfo();
 public:
   SocketStats stats_;
 
@@ -178,12 +198,14 @@ private:
 // tx_cache for writing data
 // rx_cache for reading data
 class StreamSocket: public Socket {
+  friend TcpSocket;
 public:
   StreamSocket(std::string name, ListenerContainer c, uint32_t len);
   ~StreamSocket();
 
   void SetRxSize(uint32_t size);
   void SetTxSize(uint32_t size);
+  void SetReceiver(Listener *receiver) { receiver_ = receiver; }
 
   /// in the future, we can use the message cache, not buffer cache
   /// it should be implemented in the application layer
@@ -191,15 +213,26 @@ public:
 	int WriteMsg(const char* msg, uint32_t len) override;
 	int ReadMsg(char* msg, uint32_t len) override;
   bool Write() override;
-  //bool Read() override;
+  bool Read() override;
+
+  /// it is just a fake read for testing
+  virtual bool OnRead() override;
 
   void Reset();
 	void Init();
-    
+
+  uint32_t GetInitBuffLen() { return buff_len; }
+  
+protected:
+  Listener *receiver_;
+
 private:  
   int DoRead(char *buff, uint32_t len);    // the real read
   int DoWrite();
 
+  //used for the custom message receive
+  
+  uint32_t buff_len;
   SocketBuff rx_buff;
   SocketBuff tx_buff;
 };
@@ -212,7 +245,7 @@ public:
 
 	virtual bool OpenClient(const std::string & peer_addr, uint16_t peer_port, int af) override;
 	virtual bool OpenServer(const std::string & addr, uint16_t port, int af) override;
-  virtual bool Connected() override;
+  virtual bool Accept() override;
 private:
   bool ParseAddrInfo(const std::string &addr, uint16_t port, int af, bool server);
 };

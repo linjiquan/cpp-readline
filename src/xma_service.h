@@ -5,8 +5,7 @@
 #include <string>
 
 // Internal
-#include "xma_internal.h"
-#include "xma_context.h"
+#include "xma_listener.h"
 #include "xma_message.h"
 
 namespace xma {
@@ -14,6 +13,7 @@ namespace xma {
 /// Forward Declarations
 class Service;
 class Process;
+class Listener;
 
 using ServiceList = std::list<Service *>;
 
@@ -54,7 +54,12 @@ public:
 	Process * GetContext() {
 		return context_;
 	}
-	
+
+  uint32_t GetListenerCount() const;
+  
+  void AddListener(Listener *l);
+  void RemoveListener(Listener *l);
+  
 	std::string &Name() { return name_; }
 	
 	static void Register(Service *s) {
@@ -67,9 +72,13 @@ public:
 		services_.remove(s);
 	}
 
+  static void List(); 
+
 private:
 	std::string name_;
 	Process *context_;
+
+  std::vector<std::shared_ptr<Listener>> listeners_;
 
 	static ServiceList services_;
 	static std::mutex mutex_;

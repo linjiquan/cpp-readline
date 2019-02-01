@@ -11,9 +11,11 @@ public:
 
 	//change the currently thread to xma thread
 	static void Init();
-	static void Show();
 	static void Run();
 	static void Exit();
+  
+  static void ListThread();
+
 
 private:
 };

@@ -1,0 +1,1 @@
+/usr/bin/c++      CMakeFiles/cpp_readline.dir/main.cpp.o CMakeFiles/cpp_readline.dir/tcp_echo_server.cpp.o  -o cpp_readline  -L/usr/local/lib -rdynamic ../src/libxma.so.0.1.0 -levent -lreadline -lpthread -levent -Wl,-rpath,/usr/local/lib:/home/brant/cpp-readline/src 

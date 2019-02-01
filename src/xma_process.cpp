@@ -75,8 +75,10 @@ ProcessService::~ProcessService()
 	if (msg_writer)
 		::close(msg_writer);
 
-  if (rdlistener_ != nullptr)
+  if (rdlistener_ != nullptr) {
+    RemoveListener(rdlistener_);
     delete rdlistener_;
+  }
 }
 
 void ProcessService::OnInit()
@@ -86,6 +88,7 @@ void ProcessService::OnInit()
   CreateMsgConveyers();
   
   rdlistener_ = new ProcessMsgListener(Name(), this, msg_reader);
+  AddListener(rdlistener_);
 }
 
 
@@ -139,9 +142,14 @@ Process::~Process()
     delete msg_svc_;
 }
 
+uint32_t Process::GetServiceCount()
+{
+  return svcs_.size();
+}
+
 void Process::Init() {
 	//add the default service
-	msg_svc_ = new ProcessService(Name() + "-" + "msg-service");
+	msg_svc_ = new ProcessService(Name() + "/" + "msg-service");
   
   AddService(msg_svc_);
   

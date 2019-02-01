@@ -44,28 +44,53 @@ std::string Socket::GetStrErr() const {
   XMA_CASE_STR_END();
 }
 
+
+bool Socket::StoreAddrInfo()
+{
+	struct sockaddr_in sa;
+  socklen_t socklen = sizeof(sa);
+	int ret = ::getsockname(GetFd(), (struct sockaddr *)&sa, &socklen);
+	if (ret == -1) {
+		XMA_DEBUG("[%s]Connected, getsockname failed. err:%s",\
+				Name().c_str(), strerror(errno));
+		return false;
+	}
+
+	SetPort(ntohs (sa.sin_port));
+	SetAddr(inet_ntoa(sa.sin_addr));
+
+
+  memset(&sa, 0, sizeof(sa));
+  ret = ::getpeername(GetFd(), (struct sockaddr *)&sa, &socklen);
+  if(ret == -1)
+  {  
+		XMA_DEBUG("[%s]Connected, getpeername failed. err:%s",\
+				Name().c_str(), strerror(errno));
+		return false;
+  }
+
+  SetPeerAddr(inet_ntoa(sa.sin_addr));
+  SetPeerPort(ntohs(sa.sin_port));
+
+  return true;
+}
+
 bool Socket::DoReadWrite(uint events)
 {
   if ((events & EPOLLIN) && !OnRead()) {
-    Close();
-    SetState(State::FAILED);
     SetErr(Error::READ_FAIL);
-    return false;
+    return OnError(Error::READ_FAIL);
   }
   
   if ((events & EPOLLOUT) && !Write()){
-    Close(); 
     SetErr(Error::WRITE_FAIL);    
-    SetState(State::FAILED);
-    return false;
+    return OnError(Error::WRITE_FAIL);
   }
   
   if (events & (~(EPOLLIN | EPOLLOUT)))  //exception
   {
-    Close();
-    SetState(State::FAILED);
     SetErr(Error::UNKNOWN_EVENT);
-    return OnError();
+    return OnError(Error::UNKNOWN_EVENT);
   }
 
   return true;
@@ -76,7 +101,8 @@ bool Socket::DoListen(uint events)
   if (events & EPOLLIN)
     return Accept();
 
-  return true;
+  SetErr(Error::UNKNOWN_EVENT);
+  return OnError(Error::UNKNOWN_EVENT);
 }
 
 bool Socket::DoConnect(uint events)
@@ -86,24 +112,27 @@ bool Socket::DoConnect(uint events)
       socklen_t ilen = sizeof(error);
       int ret = getsockopt(GetFd(), SOL_SOCKET, SO_ERROR, &error, &ilen);
       if (ret < 0) {        
-        Close();
         SetErr(Error::SYS_ERR);
-        return OnError();
+        return OnError(Error::SYS_ERR);
       } else if (error == EINPROGRESS) {
         return true;
       } else if (error != 0) {
-        Close();
-        SetState(State::FAILED);        
         SetErr(Error::SYS_ERR);
-        return OnError();
+        return OnError(Error::SYS_ERR);
       }
 
+      StoreAddrInfo();
+      
       SetState(State::CONNECTED);
-
-      return Connected();
+      
+      XMA_DEBUG("[%s]OnConnected: %s:%u->%s:%u", Name().c_str(),\
+        GetAddr().c_str(), GetPort(), GetPeerAddr().c_str(), GetPeerPort());
+      
+      return OnConnected();
+    } else {
+      SetErr(Error::UNKNOWN_EVENT);
+      return OnError(Error::UNKNOWN_EVENT);
     }
-  
-    return true;
 }
 
 bool Socket::DoHandle(void * data)
@@ -130,18 +159,73 @@ bool Socket::DoHandle(void * data)
 	case State::CREATED:
   default:
     SetErr(Error::STATE_ERR);
-    return OnError();
+    return OnError(Error::STATE_ERR);
   }
 	
 	return true;  
 }
 
+bool Socket::OnError(Error err_code) 
+{ 
+
+  // In genernal, Close() should be invoked by the application
+  // here is a specical case
+  // in this case, there may be resources leaked.
+  Close();
+  SetState(State::CREATED); 
+  stats_.initiative_closed++;
+  
+  XMA_DEBUG("[%s]Socket closed: err=%s", Name().c_str(), GetStrErr().c_str());
+  
+  return true;
+}
+
+bool Socket::OnAccept(StreamSocket *stream_socket) 
+{   
+  XMA_DEBUG("[%s]Socket accept nothing.", Name().c_str());
+  
+  return false;
+}
+
+bool Socket::OnConnected() 
+{
+  return true;
+}
+
+bool Socket::OnWrite() 
+{
+  return true; 
+}
+
+bool Socket::OnClose() 
+{
+  throw std::runtime_error("not implemented yet"); 
+}
+
+
+
+bool Socket::OnRead() 
+{
+  throw std::runtime_error("not implemented yet");
+}
+
+bool Socket::OpenClient(const std::string& peer_addr, uint16_t peer_port, int af)
+{
+  throw std::runtime_error("not implemented yet");
+}
+
+bool Socket::OpenServer(const std::string& addr, uint16_t port, int af)
+{
+  throw std::runtime_error("not implemented yet");
+}
 
 
 ///-----------------------------------Stream Socket-----------------------------------
 StreamSocket::StreamSocket(std::string name, ListenerContainer c, uint32_t len):
-Socket(name, c), rx_buff(1, STREAM_RWBUFLEN(len) * 2), tx_buff(0.7, STREAM_RWBUFLEN(len) * 2)
+Socket(name, c), rx_buff(1, STREAM_RWBUFLEN(len) * 2), 
+tx_buff(0.7, STREAM_RWBUFLEN(len) * 2)
 {
+  receiver_ = nullptr;
 	Init();
 }
 
@@ -171,6 +255,32 @@ void StreamSocket::Reset()
 {
   Close();
 	Init();
+}
+
+bool StreamSocket::OnRead()
+{
+#define MAX_FAKE_READ_LEN 512
+  static char fake_buff[MAX_FAKE_READ_LEN];
+
+  int ret = DoRead(fake_buff, MAX_FAKE_READ_LEN);
+  if (ret < 0) {
+    stats_.rx_err++;
+    return false;
+  } else if (ret > 0) {
+    stats_.rx_pkts++;
+    stats_.rx_bytes += ret;
+  }
+
+  XMA_DEBUG("[%s]Fake read: %d", Name().c_str(), ret);
+  return true;
+}
+
+bool StreamSocket::Read()
+{
+  if (receiver_ != nullptr)
+    return receiver_->Handle(this);
+  else
+    return OnRead();
 }
 
 bool StreamSocket::Write()
@@ -427,7 +537,7 @@ bool TcpSocket::OpenServer( const std::string& addr, uint16_t port, int af)
    return false;
  }
  
- assert (GetFd() == -1);
+ assert (GetFd() != -1);
  
  int fd = ::socket(af, SOCK_STREAM | SOCK_NONBLOCK| SOCK_CLOEXEC, IPPROTO_TCP);
  if (fd < 0) {
@@ -449,7 +559,7 @@ bool TcpSocket::OpenServer( const std::string& addr, uint16_t port, int af)
  struct sockaddr_in servaddr;
  bzero(&servaddr, sizeof(servaddr));
  servaddr.sin_family = AF_INET;
- servaddr.sin_addr.s_addr = inet_addr(GetAddr().c_str());
+ servaddr.sin_addr.s_addr = inet_addr(addr.c_str());
  servaddr.sin_port = htons(port);
 
  if (::bind(fd, (struct sockaddr*)&servaddr, sizeof(servaddr)) == -1) {
@@ -460,14 +570,18 @@ bool TcpSocket::OpenServer( const std::string& addr, uint16_t port, int af)
    return false;    
  }
 
+SetFd(fd);
  if(::listen(GetFd(), 10) == -1)
  {
    XMA_DEBUG("[%s]Open server fail, listen failed, err:%s", Name().c_str(), strerror(errno));
    SetState(State::FAILED);
    SetErr(Error::SYS_ERR);
-   ::close(fd);
+   Close();
    return false;       
  }
+
+ SetAddr(addr);
+ SetPort(port);
 
  SetState(State::LISTENING);
  AddEvents(EPOLLIN);
@@ -558,39 +672,47 @@ bool TcpSocket::OpenClient(const std::string & peer_addr, uint16_t peer_port, in
 	return true;
 }
 
-bool TcpSocket::Connected()
+bool TcpSocket::Accept()
 {
-	struct sockaddr_in sa;
-  socklen_t socklen = sizeof(sa);
-	int ret = ::getsockname(GetFd(), (struct sockaddr *)&sa, &socklen);
-	if (ret == -1) {
-		XMA_DEBUG("[%s]Connected, getsockname failed. err:%s",\
-				Name().c_str(), strerror(errno));
-		//return false;
-	}
+  static uint64_t __seq__ = 0;
+  sockaddr peer_addr;
+  socklen_t addr_len = sizeof(peer_addr);
+  int newfd;
+  
+  while((newfd = ::accept4(GetFd(), &peer_addr, &addr_len, SOCK_NONBLOCK|SOCK_CLOEXEC)) != -1) {
+    int enable = 1;
+    if (::setsockopt(newfd, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable)) != 1) {
+      std::string name = Name() + "/" + std::to_string(++__seq__);
+  
+      TcpSocket *sock = new TcpSocket(name, GetContainer(), GetInitBuffLen());
+      sock->SetEpoll(GetEpoll());
+      sock->SetFd(newfd);
+      sock->StoreAddrInfo();
 
-	SetPort(ntohs (sa.sin_port));
-	SetAddr(inet_ntoa(sa.sin_addr));
-
-
-  memset(&sa, 0, sizeof(sa));
-  ret = ::getpeername(GetFd(), (struct sockaddr *)&sa, &socklen);
-  if(ret == -1)
-  {  
-		XMA_DEBUG("[%s]Connected, getpeername failed. err:%s",\
-				Name().c_str(), strerror(errno));
-		//return false;
+      SetState(State::CONNECTED);
+      if (!sock->AddEvents(EPOLLIN | EPOLLERR | EPOLLHUP)) {
+        XMA_DEBUG("[%s]Accept new connection failed, err: %s", Name().c_str(), strerror(errno));        
+        stats_.accepted_failed++;
+        delete sock;
+        continue;
+      }
+      
+      if (!OnAccept(sock)) {
+        XMA_DEBUG("[%s]Accept new connection failed by application layer.", Name().c_str());        
+        stats_.accepted_failed++;
+        delete sock;
+        continue;
+      }
+            
+      XMA_DEBUG("[%s]Accept new connection: %s:%u->%s:%u", sock->Name().c_str(),\
+        sock->GetAddr().c_str(), sock->GetPort(), sock->GetPeerAddr().c_str(), sock->GetPeerPort());
+    } else {
+      stats_.accepted_failed++;
+      XMA_DEBUG("[%s]Accept new connection failed, err: %s", Name().c_str(), strerror(errno));
+    }
   }
 
-  SetPeerAddr(inet_ntoa(sa.sin_addr));
-  SetPeerPort(ntohs(sa.sin_port));
-
-	SetState(State::CONNECTED);
-
-	XMA_DEBUG("[%s]OnConnected: %s:%u->%s:%u", Name().c_str(),\
-    GetAddr().c_str(), GetPort(), GetPeerAddr().c_str(), GetPeerPort());
-	
-	return OnConnected();
+  return true;
 }
 
 }

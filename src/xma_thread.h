@@ -40,6 +40,7 @@ public:
 
   static void Register(Thread* t);
   static ThreadList GetThreadList();
+  static void List();
   static uint32_t GetThreadId();
   static void Exit();
 
@@ -81,12 +82,13 @@ public:
   const std::string& Name() { 	return name_; }
   int32_t GetRunningCore() { return lcore_; }
   uint32_t Id() { return id_; }
-  uint32_t Tid() { return tid_; }
-  State GetState() { return state_; }
+  uint64_t Tid();
+  State GetState() const { return state_; }
   void SetState(State state) { state_ = state; }
   ThreadContext &GetContext() { return context_; }
   bool IsRunning() { return running_; }
-  
+  std::string GetStrState() const;
+  virtual uint32_t GetServiceCount() { return 0; }
 private:
   void Run();
   void SetAffinity();
@@ -96,7 +98,6 @@ private:
   std::string name_;
   State state_;
   uint32_t id_;    // the logical thread id
-  uint32_t tid_;   // the real thread id
   int32_t lcore_;  //the running logical core of this thread
   std::thread thread_;
   bool running_;   // the runing flag, only used for testing now

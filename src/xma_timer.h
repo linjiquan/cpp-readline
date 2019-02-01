@@ -1,14 +1,5 @@
 #pragma once
 
-// C/C++
-#include <sys/time.h>
-#include <unistd.h>
-
-
-// Internal
-#include "xma_listener.h"
-#include "xma_epoll.h"
-#include "xma_service.h"
 
 namespace xma {
 

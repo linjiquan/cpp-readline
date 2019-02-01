@@ -85,7 +85,7 @@ int main()
 	});
 
 	Process test("Test", 0);
-	Process test1("Test1", 0);
+	Process test1("Test1", 1);
 
 	xma::Application::Run();
 

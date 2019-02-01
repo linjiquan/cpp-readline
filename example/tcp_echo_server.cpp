@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <vector>
 
 // Linux
 #include <sys/types.h>
@@ -18,33 +19,77 @@
 #include "../src/xma_process.h"
 #include "../src/xma_service.h"
 #include "../src/xma_internal.h"
+#include "../src/xma_socket.h"
 
 using namespace xma;
 
-class TcpEchoListener: public EpollListener
+class TcpEchoServer;
+
+class TcpEchoSocket: public TcpSocket
 {
 public:
-	TcpEchoListener(Process *context, int fd, std::string name);
-	bool DoHandle(void * data) override;
+	TcpEchoSocket(std::string name, ListenerContainer c, uint32_t len): TcpSocket(name, c, len)
+  {
+    std::cout << "TCP echo server created." << std::endl;
+  } 
+
+  
+  bool OnAccept(StreamSocket *stream_socket) override { 
+    //Service *server = dynamic_cast<Service *>(GetContainer());
+    
+    //server->OnAccept(stream_socket);
+		if (stream_socket == nullptr)
+			return false;
+
+    return true;
+  }
 private:
-	Process *context_;
 };
 
 
 class TcpEchoServer: public Service
 {
 public:
-	TcpEchoServer(std::string name, std::string address, uint16_t port) : Service(name), address_(address), port_(port) {
-		XMA_DEBUG("Create tcp echo server[%s]: %s:%d", Name().c_str(), address_.c_str(), port_);
+	TcpEchoServer(std::string address, uint16_t port) : Service("TcpEchoServer"){
+		address_ = address;
+		port_ = port;
 	}
 
+  ~TcpEchoServer() {
+    if (server_ != nullptr)
+      delete server_;
+  }
+
+  
 	void OnInit() {
 		//create local tcp echo server
-		
+		server_ = new TcpEchoSocket(Name(), this, 8196); 
+    if (!server_->OpenServer(address_, port_, AF_INET)) {
+      throw std::runtime_error("Start TCP echo server failed.");
+    }
+    
+		std::cout << "TCP echo server is listening on : " << address_ << ":" << port_ << std::endl;
+    std::cout << "Listen FD=" << server_->GetFd() << std::endl;
 	}
 
 private:
-	TcpEchoListener *listener_;
+	TcpEchoSocket *server_;
 	std::string address_;
 	uint16_t port_;
 };
+
+class TcpEchoProcess: public Process
+{
+public:
+  TcpEchoProcess(): Process("TCP-Echo", 0), server("127.0.0.1", 9527) {
+  }
+
+  void OnInit() override {
+		AddService(&server);
+	}
+  
+  TcpEchoServer server;
+};
+
+TcpEchoProcess tcp_echo_server;
+

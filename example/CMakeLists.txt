@@ -5,5 +5,5 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-add_executable(cpp_readline main.cpp)
+add_executable(cpp_readline main.cpp tcp_echo_server.cpp)
 target_link_libraries(cpp_readline ${lib_name} event)

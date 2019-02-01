@@ -66,12 +66,14 @@ public:
 	void AddService(Service *svc) { svcs_.push_back(svc); }
 	void CreateMsgLienster();
 
-	virtual void OnInit() {
+	virtual void OnInit()  {
 		std::cout << "Basic Process OnInit()" << std::endl;
 	}
+
+  uint32_t GetServiceCount() override;
 	
 private:
 	ServiceList svcs_;
-    ProcessService *msg_svc_;
+  ProcessService *msg_svc_;
 };
 }
