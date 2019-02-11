@@ -78,7 +78,7 @@ private:
 	std::string name_;
 	Process *context_;
 
-  std::vector<std::shared_ptr<Listener>> listeners_;
+  std::vector<Listener *> listeners_;
 
 	static ServiceList services_;
 	static std::mutex mutex_;

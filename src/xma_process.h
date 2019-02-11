@@ -21,8 +21,10 @@
 #include "xma_service.h"
 #include "xma_thread.h"
 #include "xma_message.h"
-
+#include "xma_timer.h"
 namespace xma {
+
+
 class ProcessMsgListener: public EpollListener
 {  
 public:
@@ -43,6 +45,11 @@ public:
 
   bool SendMsg(Msg *msg);
 
+//	int SetTimer(Duration d, void *data);
+//	void StopTimer(int timer_id);
+
+	TimerServer timer_server_;
+
 private:
   void OnInit();
   void CreateMsgConveyers(); 
@@ -51,7 +58,7 @@ private:
   
 private:
   ProcessMsgListener *rdlistener_;
-  int msgconveyers_[2];		  
+  int msgconveyers_[2];
 };
 
 class Process: public Thread
@@ -60,11 +67,20 @@ public:
 	Process(std::string name, int32_t cpu_set): Thread(name, cpu_set) {}
 	virtual ~Process();
 
-	void Init();
-	void Main();
+  virtual void RegisterCommand() {}
+
+	void Init() override;
+	void Main() override;
+	
 	bool SendMsg(Msg *msg);
+
+	bool SetTimer(Timer *t);
+	bool StopTimer(Timer *t);
+	bool RestartTimer(Timer *t);
+	
 	void AddService(Service *svc) { svcs_.push_back(svc); }
 	void CreateMsgLienster();
+	TimerServer &GetTimerServer();
 
 	virtual void OnInit()  {
 		std::cout << "Basic Process OnInit()" << std::endl;
@@ -74,6 +90,7 @@ public:
 	
 private:
 	ServiceList svcs_;
-  ProcessService *msg_svc_;
+  ProcessService *proc_svc_;//default service
 };
+
 }

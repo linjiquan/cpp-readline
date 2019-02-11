@@ -21,6 +21,7 @@ namespace xma {
 	
 	EpollListener::EpollListener(std::string name, ListenerContainer c): Listener(name, c), epoll_(nullptr) 
 	{
+		fd_ = -1;
 		events_.data.ptr = this;
 		events_.events = 0;
 	}

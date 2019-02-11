@@ -13,6 +13,7 @@ example/CMakeFiles/cpp_readline.dir/main.cpp.o: src/xma_service.h
 example/CMakeFiles/cpp_readline.dir/main.cpp.o: src/xma_shell.h
 example/CMakeFiles/cpp_readline.dir/main.cpp.o: src/xma_status.h
 example/CMakeFiles/cpp_readline.dir/main.cpp.o: src/xma_thread.h
+example/CMakeFiles/cpp_readline.dir/main.cpp.o: src/xma_timer.h
 
 example/CMakeFiles/cpp_readline.dir/tcp_echo_server.cpp.o: example/tcp_echo_server.cpp
 example/CMakeFiles/cpp_readline.dir/tcp_echo_server.cpp.o: src/xma_application.h

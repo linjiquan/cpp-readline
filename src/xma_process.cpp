@@ -138,8 +138,8 @@ bool ProcessService::SendMsg(Msg *msg)
 ///---------------------------Process-------------------------------------------------
 Process::~Process()
 {
-  if (msg_svc_ != nullptr)
-    delete msg_svc_;
+  if (proc_svc_ != nullptr)
+    delete proc_svc_;
 }
 
 uint32_t Process::GetServiceCount()
@@ -148,31 +148,71 @@ uint32_t Process::GetServiceCount()
 }
 
 void Process::Init() {
+	XMA_DEBUG("[%s]Process init...", Name().c_str());
+
 	//add the default service
-	msg_svc_ = new ProcessService(Name() + "/" + "msg-service");
-  
-  AddService(msg_svc_);
+	proc_svc_ = new ProcessService(Name() + "/service*");
+	XMA_DEBUG("[%s] default service is %p", Name().c_str(), (void *)proc_svc_);
+
+  AddService(proc_svc_);
   
 	OnInit();
 	
 	for (auto &s: svcs_) 
 		s->Init(this);
+
+	RegisterCommand();
 	
-	XMA_DEBUG("Service initizated. size=%lu", svcs_.size());
+	XMA_DEBUG("[%s]Service started: size=%lu", Name().c_str(), svcs_.size());
 }
 
 bool Process::SendMsg(Msg *msg)
 {
-  assert (msg_svc_ != nullptr);
-  return msg_svc_->SendMsg(msg);
+  assert (proc_svc_ != nullptr);
+  return proc_svc_->SendMsg(msg);
+}
+
+TimerServer &Process::GetTimerServer()
+{
+	assert (proc_svc_ != nullptr);
+	return proc_svc_->timer_server_;
+}
+
+bool Process::SetTimer(Timer *t)
+{
+	assert (proc_svc_ != nullptr);
+
+	return proc_svc_->timer_server_.SetTimer(t);
+}
+
+bool Process::StopTimer(Timer *t)
+{
+	assert (proc_svc_ != nullptr);
+
+	return proc_svc_->timer_server_.StopTimer(t);
+}
+bool Process::RestartTimer(Timer *t)
+{
+	assert (proc_svc_ != nullptr);
+
+	if (StopTimer(t) != true)
+		return false;
+	
+	return SetTimer(t);
 }
 
 void Process::Main() {
 #define MAX_EVENTS 1024
 	int nfds;
+	int timeout = 3;
+
 	epoll_event events[MAX_EVENTS];
-	while(IsRunning() && (nfds = GetContext().GetEpoll().Wait(events, MAX_EVENTS, 3)) != -1)
+	while(IsRunning() && (nfds = GetContext().GetEpoll().Wait(events, MAX_EVENTS, timeout)) != -1)
 	{
+		timeout = std::min(static_cast<int>(proc_svc_->timer_server_.CheckTimers().count()), timeout);
+		if (timeout <= 0)
+			timeout = 3;
+
 	  for (int i = 0; i < nfds; ++i )
 	  {
 		  EpollListener *l = reinterpret_cast<EpollListener *>(events[i].data.ptr);

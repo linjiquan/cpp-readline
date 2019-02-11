@@ -27,7 +27,7 @@ namespace xma {
         rl_attempted_completion_function = &Shell::CommandCompletion;
 
         // 默认命令
-        RegisterCommand("help", "show this help", [&](const ShellFuncArgs &) -> int{
+        RegisterCommand("help", "show this help", [&](ShellFuncArgs &) -> int{
             auto commands = this->_commands;
             std::cout << " Available commands are:\n";
 			
@@ -37,7 +37,7 @@ namespace xma {
             return XS_SUCCESS;
         });
 
-        RegisterCommand("quit", "quit the process", [&](const ShellFuncArgs &) {
+        RegisterCommand("quit", "quit the process", [&](ShellFuncArgs &) {
             return XS_QUIT;
         });
 		

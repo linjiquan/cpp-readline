@@ -46,12 +46,12 @@ void Service::List()
 }
  
 void Service::AddListener(Listener *l)
-{
-
+{ 
+  listeners_.push_back(l);
 }
 void Service::RemoveListener(Listener *l)
 {
-
+  throw std::runtime_error("Remove listener at runtime is not supported.");
 }
 
 }

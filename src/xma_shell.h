@@ -15,7 +15,7 @@
 namespace xma {
 
     using ShellFunc     = std::function<int(const std::vector<std::string> &)>;
-    using ShellFuncArgs = std::vector<std::string>;
+    using ShellFuncArgs = const std::vector<std::string>;
 
     class Shell {
         public:

@@ -60,6 +60,7 @@ struct SocketStats
   uint64_t rx_oops;       // times for read to direct first, then move to cache
   uint64_t rx_oops_bytes; // bytes for read to direct first, then move to cache
   uint64_t initiative_closed;
+  uint32_t reset_time;
 };
 
 class Socket : public EpollListener
@@ -68,7 +69,7 @@ public:
 	Socket(std::string name, ListenerContainer c): EpollListener(name, c) {
     SetState(State::CREATED);
     SetErr(Error::NO_ERR);
-    create_timestamp_ = Timer::GetTime();
+    create_timestamp_ = TimeUtil::GetTime();
     ResetStats();
   }
 	virtual ~Socket() {}
@@ -108,7 +109,7 @@ public:
   /// Read:       => OnRead, OnError
   /// Write:      => OnWrite, OnError
   /// Connected:  => OnConnected, OnError
-  /// Accept:     => OnAccept, OnError
+  /// Accept:     => OnCreate -> OnAccept, OnError
   /// OnClose is not supported yet.
   /// notes: there is no close event, application need to close
   ///        socket in the right time, it is the application's 
@@ -123,7 +124,9 @@ public:
   ///like change the application status and something like this
   virtual bool OnError(Error err_code);
 
-  ///wired when new connection reach
+  virtual StreamSocket *OnCreate(int fd);
+
+  ///wired when new connection accepted ready
   virtual bool OnAccept(StreamSocket *stream_socket);
   
   // wired after connect success
@@ -171,7 +174,8 @@ protected:
 	void SetAddr(const std::string & addr) { addr_ = addr; }
 	void SetPeerAddr(const std::string & addr) { peer_addr_ = addr; }
 
-  void ResetStats() { memset(&stats_, 0x00, sizeof(stats_)); }
+  void ResetStats();
+  void ShowStats();
 
   bool StoreAddrInfo();
 public:
@@ -205,7 +209,7 @@ public:
 
   void SetRxSize(uint32_t size);
   void SetTxSize(uint32_t size);
-  void SetReceiver(Listener *receiver) { receiver_ = receiver; }
+  void SetReceiver(Listener *receiver) { receiver_ = std::shared_ptr<Listener>(receiver); }
 
   /// in the future, we can use the message cache, not buffer cache
   /// it should be implemented in the application layer
@@ -224,7 +228,10 @@ public:
   uint32_t GetInitBuffLen() { return buff_len; }
   
 protected:
-  Listener *receiver_;
+  std::shared_ptr<Listener> receiver_;
+
+  void AddClients(TcpSocket *c);
+  void RemoveClients(TcpSocket *c);
 
 private:  
   int DoRead(char *buff, uint32_t len);    // the real read
@@ -245,7 +252,8 @@ public:
 
 	virtual bool OpenClient(const std::string & peer_addr, uint16_t peer_port, int af) override;
 	virtual bool OpenServer(const std::string & addr, uint16_t port, int af) override;
-  virtual bool Accept() override;
+  virtual StreamSocket *OnCreate(int fd) override;
+  bool Accept() override;
 private:
   bool ParseAddrInfo(const std::string &addr, uint16_t port, int af, bool server);
 };
