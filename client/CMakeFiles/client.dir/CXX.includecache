@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/brant/cpp-readline/client/client_process.cpp
+/home/brant/cpp-readline/client/client_process.hpp
 iostream
 -
 string
@@ -85,6 +85,8 @@ thread
 /home/brant/cpp-readline/src/xma_application.h
 ../src/xma_process.h
 /home/brant/cpp-readline/src/xma_process.h
+client_process.hpp
+/home/brant/cpp-readline/client/client_process.hpp
 
 /home/brant/cpp-readline/src/xma_application.h
 
@@ -93,6 +95,8 @@ thread
 /home/brant/cpp-readline/src/xma_epoll.h
 xma_listener.h
 /home/brant/cpp-readline/src/xma_listener.h
+xma_service.h
+/home/brant/cpp-readline/src/xma_service.h
 
 /home/brant/cpp-readline/src/xma_internal.h
 iostream

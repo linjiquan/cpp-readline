@@ -124,6 +124,19 @@ xma/fast:
 .PHONY : xma/fast
 
 #=============================================================================
+# Target rules for targets named client
+
+# Build rule for target.
+client: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 client
+.PHONY : client
+
+# fast build rule for target.
+client/fast:
+	$(MAKE) -f client/CMakeFiles/client.dir/build.make client/CMakeFiles/client.dir/build
+.PHONY : client/fast
+
+#=============================================================================
 # Target rules for targets named cpp_readline
 
 # Build rule for target.
@@ -145,6 +158,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... xma"
+	@echo "... client"
 	@echo "... cpp_readline"
 .PHONY : help
 

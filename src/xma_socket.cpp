@@ -15,6 +15,7 @@
 // Internal
 #include "xma_internal.h"
 #include "xma_socket.h"
+#include "xma_process.h"
 
 namespace xma {
 ///-----------------------------------Socket------------------------------------------
@@ -83,6 +84,12 @@ void Socket::ShowStats()
   std::cout << XMA_LEFT_OUTPUT(_w) << "initiative_closed" << stats_.initiative_closed << std::endl;
 }
 
+Socket::Socket(std::string name, ListenerContainer c): EpollListener(name, c) {
+  SetState(State::CREATED);
+  SetErr(Error::NO_ERR);
+  create_timestamp_ = TimeUtil::GetTime();
+  ResetStats();
+}
 bool Socket::StoreAddrInfo()
 {
 	struct sockaddr_in sa;
@@ -117,18 +124,18 @@ bool Socket::DoReadWrite(uint events)
 {
   if ((events & EPOLLIN) && !OnRead()) {
     SetErr(Error::READ_FAIL);
-    return OnError(Error::READ_FAIL);
+    return GetContainer()->OnSocketErr(this);
   }
   
   if ((events & EPOLLOUT) && !Write()){
     SetErr(Error::WRITE_FAIL);    
-    return OnError(Error::WRITE_FAIL);
+    return GetContainer()->OnSocketErr(this);
   }
   
   if (events & (~(EPOLLIN | EPOLLOUT)))  //exception
   {
     SetErr(Error::UNKNOWN_EVENT);
-    return OnError(Error::UNKNOWN_EVENT);
+    return GetContainer()->OnSocketErr(this);
   }
 
   return true;
@@ -140,7 +147,7 @@ bool Socket::DoListen(uint events)
     return Accept();
 
   SetErr(Error::UNKNOWN_EVENT);
-  return OnError(Error::UNKNOWN_EVENT);
+  return GetContainer()->OnSocketErr(this);
 }
 
 bool Socket::DoConnect(uint events)
@@ -151,17 +158,19 @@ bool Socket::DoConnect(uint events)
       int ret = getsockopt(GetFd(), SOL_SOCKET, SO_ERROR, &error, &ilen);
       if (ret < 0) {        
         SetErr(Error::SYS_ERR);
-        return OnError(Error::SYS_ERR);
+        return GetContainer()->OnSocketErr(this);
       } else if (error == EINPROGRESS) {
         return true;
       } else if (error != 0) {
         SetErr(Error::SYS_ERR);
-        return OnError(Error::SYS_ERR);
+        return GetContainer()->OnSocketErr(this);
       }
 
       StoreAddrInfo();
       
       SetState(State::CONNECTED);
+      
+      SetEvents(EPOLLIN | EPOLLERR | EPOLLHUP);
       
       XMA_DEBUG("[%s]OnConnected: %s:%u->%s:%u", Name().c_str(),\
         GetAddr().c_str(), GetPort(), GetPeerAddr().c_str(), GetPeerPort());
@@ -169,19 +178,18 @@ bool Socket::DoConnect(uint events)
       return OnConnected();
     } else {
       SetErr(Error::UNKNOWN_EVENT);
-      return OnError(Error::UNKNOWN_EVENT);
+      return GetContainer()->OnSocketErr(this);
     }
 }
 
 bool Socket::DoHandle(void * data)
 {
-	struct epoll_event *ee = (epoll_event *)data;
-	
-	assert (this == ee->data.ptr);
+  struct epoll_event *ee = (epoll_event *)data;
 
+  assert (this == ee->data.ptr);
 
   XMA_DEBUG("[%s]Socket sm runing: %d on %s", Name().c_str(), ee->events, GetStrState().c_str());
-  
+
   // run the socket state machine
   switch (GetState()) {
   case State::LISTENING:
@@ -189,23 +197,23 @@ bool Socket::DoHandle(void * data)
   case State::CONNECTING:
     return DoConnect(ee->events);
 
-	case State::FULL:
+  case State::FULL:
   case State::CONNECTED:
     return DoReadWrite(ee->events);
 
   case State::FAILED:
-	case State::CREATED:
+  case State::CREATED:
   default:
     SetErr(Error::STATE_ERR);
-    return OnError(Error::STATE_ERR);
+    return GetContainer()->OnSocketErr(this);
   }
-	
-	return true;  
+
+  return true;  
 }
 
+#if 0
 bool Socket::OnError(Error err_code) 
 { 
-
   // In genernal, Close() should be invoked by the application
   // here is a specical case
   // in this case, there may be resources leaked.
@@ -217,6 +225,7 @@ bool Socket::OnError(Error err_code)
   
   return true;
 }
+#endif
 
 bool Socket::OnAccept(StreamSocket *stream_socket) 
 {   
@@ -272,7 +281,15 @@ tx_buff(0.7, STREAM_RWBUFLEN(len) * 2)
 
 StreamSocket::~StreamSocket()
 {
+  if (receiver_ != nullptr)
+    delete receiver_;
+    
   Reset();
+}
+
+void StreamSocket::SetReceiver(Listener *receiver) 
+{ 
+  receiver_ = receiver; 
 }
 
 void StreamSocket::SetRxSize(uint32_t size)
@@ -318,7 +335,7 @@ bool StreamSocket::OnRead()
 
 bool StreamSocket::Read()
 {
-  if (receiver_.get() != nullptr)
+  if (receiver_ != nullptr)
     return receiver_->Handle(this);
   else
     return OnRead();
@@ -349,35 +366,35 @@ int StreamSocket::DoWrite()
     int ret = ::send(GetFd(), tx_buff.getBuf(), tx_buff.getIndex(), MSG_DONTWAIT);
     if (ret < 0) {
       if (errno == EINTR || errno == EAGAIN) {
-				stats_.tx_eagin++;
+        stats_.tx_eagin++;
         return 0;
       } else {
-				stats_.tx_err++;
-				XMA_DEBUG("[%s] stream send failed, err=%s", Name().c_str(), strerror(errno));
+        stats_.tx_err++;
+        XMA_DEBUG("[%s] stream send failed, err=%s", Name().c_str(), strerror(errno));
         return ret;
       }
     } else {
-			stats_.tx_bytes += ret;
+      stats_.tx_bytes += ret;
       if (ret < tx_buff.getIndex()){
         tx_buff.shrinkFromFront(ret);
-				stats_.tx_partial++;
-				if (GetState() == State::FULL && tx_buff.checkCanOp(0)) {
-					SetState(State::CONNECTED);
-				}
-				XMA_DEBUG("[%s] stream partial send, bytes=%u", Name().c_str(), ret);
+        stats_.tx_partial++;
+        if (GetState() == State::FULL && tx_buff.checkCanOp(0)) {
+          SetState(State::CONNECTED);
+        }
+        XMA_DEBUG("[%s] stream partial send, bytes=%u", Name().c_str(), ret);
         return ret;
       } else {
-				XMA_DEBUG("[%s] stream send, bytes=%u", Name().c_str(), ret);
+        XMA_DEBUG("[%s] stream send, bytes=%u", Name().c_str(), ret);
         // conn->m_writeIndex = 0 ;
         tx_buff.setIndex(0);
-				if (GetState() == State::FULL) {
-					SetState(State::CONNECTED);
-				}
+        if (GetState() == State::FULL) {
+          SetState(State::CONNECTED);
+        }
 
-        if (!AddEvents(EPOLLIN | EPOLLERR | EPOLLHUP)) {
-					XMA_DEBUG("[%s] stream add events failed, err=%s", Name().c_str(), strerror(errno));
-					SetErr(Error::SYS_ERR);
-					return -1;
+        if (!SetEvents(EPOLLIN | EPOLLERR | EPOLLHUP)) {
+          XMA_DEBUG("[%s] stream add events failed, err=%s", Name().c_str(), strerror(errno));
+          SetErr(Error::SYS_ERR);
+          return -1;
         }
 
         return ret;
@@ -568,66 +585,67 @@ int StreamSocket::ReadMsg(char* msg, uint32_t len)
 
 bool TcpSocket::OpenServer( const std::string& addr, uint16_t port, int af)
 {
- XMA_DEBUG("[%s]Open server: %s:%u", Name().c_str(), addr.c_str(), port);
+  XMA_DEBUG("[%s]Open server: %s:%u", Name().c_str(), addr.c_str(), port);
 
 
- if (GetState() != State::CREATED && GetState() != State::FAILED)
- {  
-   XMA_DEBUG("[%s]Open server fail in err state: %s:%u", Name().c_str(), addr.c_str(), port);
-   SetErr(Error::STATE_ERR);
-   return false;
- }
- 
- assert (GetFd() == -1);
- 
- int fd = ::socket(af, SOCK_STREAM | SOCK_NONBLOCK| SOCK_CLOEXEC, IPPROTO_TCP);
- if (fd < 0) {
-   XMA_DEBUG("[%s]Open server fail, socket() fail, err:%s", Name().c_str(), strerror(errno));
-   SetState(State::FAILED);
-   SetErr(Error::SYS_ERR);
-   return false;
- }
+  if (GetState() != State::CREATED && GetState() != State::FAILED)
+  {  
+    XMA_DEBUG("[%s]Open server fail in err state: %s:%u", Name().c_str(), addr.c_str(), port);
+    SetErr(Error::STATE_ERR);
+    return false;
+  }
 
- int enable = 1;
- if (::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable) ) == -1) {
-   XMA_DEBUG("[%s]Open server fail, setsockopt SO_REUSEADDR, err:%s", Name().c_str(), strerror(errno));
-   SetState(State::FAILED);
-   SetErr(Error::SYS_ERR);
-   ::close(fd);
-   return false;    
- }
+  assert (GetFd() == -1);
 
- struct sockaddr_in servaddr;
- bzero(&servaddr, sizeof(servaddr));
- servaddr.sin_family = AF_INET;
- servaddr.sin_addr.s_addr = inet_addr(addr.c_str());
- servaddr.sin_port = htons(port);
+  int fd = ::socket(af, SOCK_STREAM | SOCK_NONBLOCK| SOCK_CLOEXEC, IPPROTO_TCP);
+  if (fd < 0) {
+    XMA_DEBUG("[%s]Open server fail, socket() fail, err:%s", Name().c_str(), strerror(errno));
+    SetState(State::FAILED);
+    SetErr(Error::SYS_ERR);
+    return false;
+  }
 
- if (::bind(fd, (struct sockaddr*)&servaddr, sizeof(servaddr)) == -1) {
-   XMA_DEBUG("[%s]Open server fail, bind address failed, err:%s", Name().c_str(), strerror(errno));
-   SetState(State::FAILED);
-   SetErr(Error::SYS_ERR);
-   ::close(fd);
-   return false;    
- }
+  int enable = 1;
+  if (::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable) ) == -1) {
+    XMA_DEBUG("[%s]Open server fail, setsockopt SO_REUSEADDR, err:%s", Name().c_str(), strerror(errno));
+    SetState(State::FAILED);
+    SetErr(Error::SYS_ERR);
+    ::close(fd);
+    return false;    
+  }
 
- SetFd(fd);
- if(::listen(GetFd(), 10) == -1)
- {
-   XMA_DEBUG("[%s]Open server fail, listen failed, err:%s", Name().c_str(), strerror(errno));
-   SetState(State::FAILED);
-   SetErr(Error::SYS_ERR);
-   Close();
-   return false;       
- }
+  struct sockaddr_in servaddr;
+  bzero(&servaddr, sizeof(servaddr));
+  servaddr.sin_family = AF_INET;
+  servaddr.sin_addr.s_addr = inet_addr(addr.c_str());
+  servaddr.sin_port = htons(port);
 
- SetAddr(addr);
- SetPort(port);
+  if (::bind(fd, (struct sockaddr*)&servaddr, sizeof(servaddr)) == -1) {
+    XMA_DEBUG("[%s]Open server fail, bind address failed, err:%s", Name().c_str(), strerror(errno));
+    SetState(State::FAILED);
+    SetErr(Error::SYS_ERR);
+    ::close(fd);
+    return false;    
+  }
 
- SetState(State::LISTENING);
- AddEvents(EPOLLIN);
- 
- return true;
+  Start(fd);
+
+  if(::listen(GetFd(), 10) == -1)
+  {
+    XMA_DEBUG("[%s]Open server fail, listen failed, err:%s", Name().c_str(), strerror(errno));
+    SetState(State::FAILED);
+    SetErr(Error::SYS_ERR);
+    Close();
+    return false;       
+  }
+
+  SetAddr(addr);
+  SetPort(port);
+
+  SetState(State::LISTENING);
+  SetEvents(EPOLLIN);
+
+  return true;
 }
 
 bool TcpSocket::OpenClient(const std::string & peer_addr, uint16_t peer_port, int af)
@@ -697,8 +715,8 @@ bool TcpSocket::OpenClient(const std::string & peer_addr, uint16_t peer_port, in
   }
 
   SetState(State::CONNECTING);
-	SetFd(fd);
-  if (!AddEvents(EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP)) {  //未连接需要判断可读可写事件
+  Start(fd);
+  if (!SetEvents(EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP)) {  //未连接需要判断可读可写事件
       XMA_DEBUG("[%s] add connect events failed, error:[%d:%s]",\
 					Name().c_str(), errno, strerror(errno));
 			SetState(State::FAILED);
@@ -718,7 +736,6 @@ StreamSocket *TcpSocket::OnCreate(int fd)
   static uint64_t __seq__ = 0;
   std::string name = Name() + "/" + std::to_string(++__seq__);
   TcpSocket *s = new TcpSocket(name, GetContainer(), GetInitBuffLen());
-  s->SetFd(fd);
   return s;
 }
 
@@ -732,11 +749,11 @@ bool TcpSocket::Accept()
     int enable = 1;
     if (::setsockopt(newfd, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable)) != 1) {  
       TcpSocket *sock = dynamic_cast<TcpSocket *>(OnCreate(newfd));
-      sock->SetEpoll(GetEpoll());
+      sock->Start(newfd);
       sock->StoreAddrInfo();
 
-      SetState(State::CONNECTED);
-      if (!sock->AddEvents(EPOLLIN | EPOLLERR | EPOLLHUP)) {
+      sock->SetState(State::CONNECTED);
+      if (!sock->SetEvents(EPOLLIN | EPOLLERR | EPOLLHUP)) {
         XMA_DEBUG("[%s]Accept new connection failed, err: %s", Name().c_str(), strerror(errno));        
         stats_.accepted_failed++;
         delete sock;

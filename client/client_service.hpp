@@ -65,27 +65,33 @@ public:
 
 	
 	~TcpClientService() {
+    if (tcp_client_timer_ != nullptr)
+      delete tcp_client_timer_;
+
     if (client_ != nullptr)
       delete client_;
 	}
 
   void StartClient(std::string server_addr, uint16_t server_port)
   {
-    client_->OpenClient(server_addr, server_port, AF_INET);
-    tcp_client_timer_ = std::unique_ptr<TcpClientTimer>(new TcpClientTimer("TcpClientTimer", this, Duration(3000)));
+    if (!client_->OpenClient(server_addr, server_port, AF_INET)) {
+      std::cout << "Open client failed." << std::endl;
+      return ;
+    }
+    tcp_client_timer_ = new TcpClientTimer("TcpClientTimer", this, Duration(3000));
     tcp_client_timer_->client_ = client_;
     tcp_client_timer_->Set();
   }
   
 	void OnInit() {
- 		//create local tcp echo server
-		client_ = new TcpClient(this); 
-    
+    //create local tcp echo server
+    client_ = new TcpClient(this); 
+    StartClient("127.0.0.1", 9527);
 	}
 
 
   
 private:
-  std::unique_ptr<TcpClientTimer> tcp_client_timer_;
-  TcpClient * client_;
+  TcpClientTimer* tcp_client_timer_{nullptr};
+  TcpClient * client_{nullptr};
 };

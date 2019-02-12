@@ -4,7 +4,6 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/brant/cpp-readline/client/client_process.cpp" "/home/brant/cpp-readline/client/CMakeFiles/client.dir/client_process.cpp.o"
   "/home/brant/cpp-readline/client/main.cpp" "/home/brant/cpp-readline/client/CMakeFiles/client.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")

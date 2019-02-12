@@ -19,8 +19,10 @@ thread
 /home/brant/cpp-readline/src/xma_application.h
 ../src/xma_process.h
 /home/brant/cpp-readline/src/xma_process.h
+tcp_echo_server.hpp
+/home/brant/cpp-readline/example/tcp_echo_server.hpp
 
-/home/brant/cpp-readline/example/tcp_echo_server.cpp
+/home/brant/cpp-readline/example/tcp_echo_server.hpp
 iostream
 -
 string
@@ -63,6 +65,8 @@ netdb.h
 /home/brant/cpp-readline/src/xma_epoll.h
 xma_listener.h
 /home/brant/cpp-readline/src/xma_listener.h
+xma_service.h
+/home/brant/cpp-readline/src/xma_service.h
 
 /home/brant/cpp-readline/src/xma_internal.h
 iostream

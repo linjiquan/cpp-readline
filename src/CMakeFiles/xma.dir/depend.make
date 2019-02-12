@@ -21,8 +21,11 @@ src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_epoll.h
 src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_internal.h
 src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_listener.h
 src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_message.h
+src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_process.h
 src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_service.h
 src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_status.h
+src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_thread.h
+src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_timer.h
 
 src/CMakeFiles/xma.dir/xma_listener.cpp.o: src/xma_context.h
 src/CMakeFiles/xma.dir/xma_listener.cpp.o: src/xma_internal.h
@@ -66,11 +69,13 @@ src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_epoll.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_internal.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_listener.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_message.h
+src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_process.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_service.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_socket.cpp
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_socket.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_socket_cache.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_status.h
+src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_thread.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_timer.h
 
 src/CMakeFiles/xma.dir/xma_thread.cpp.o: src/xma_context.h

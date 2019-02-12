@@ -14,6 +14,7 @@ namespace xma {
 class Service;
 class Process;
 class Listener;
+class Socket;
 
 using ServiceList = std::list<Service *>;
 
@@ -37,15 +38,21 @@ public:
 		UnRegister(this);
 	}
 
-	void Init(Process *context) {
-		XMA_DEBUG("Service init: %s", name_.c_str());
-		SaveContext(context);
-		OnInit();
+  void Init(Process *context) {
+    XMA_DEBUG("Service init: %s", name_.c_str());
+    SaveContext(context);
+    OnInit();
+  }
+
+	virtual bool OnSocketErr(Socket *s)
+	{
+		XMA_DEBUG("[%s] Socket error, socket=%p", Name().c_str(), (void *)s);
+		return true;
 	}
 
-	virtual void OnInit() {
-		std::cout << "The basic OnInit()" << std::endl;
-	}
+  virtual void OnInit() {
+    std::cout << "The basic OnInit()" << std::endl;
+  }
 
 	void SaveContext(Process *context) {
 		context_ = context;

@@ -63,16 +63,16 @@ Timer::~Timer()
 
 bool Timer::Set()
 {
-	assert (status_ == Status::Deactived);
-	tp_ = Clock::now() + expire_;
-	XMA_DEBUG("[%s]Set timer in %s", Name().c_str(), TimeUtil::TimeToStr(tp_).c_str());
-	if (GetContainer()->GetContext()->SetTimer(this)) {
-		assert (GetId() > 0);
-		status_ = Status::Actived;
-		return true;
-	}
+  assert (status_ == Status::Deactived);
+  tp_ = Clock::now() + expire_;
+  //XMA_DEBUG("[%s]Set timer in %s", Name().c_str(), TimeUtil::TimeToStr(tp_).c_str());
+  if (GetContainer()->GetContext()->SetTimer(this)) {
+    assert (GetId() > 0);
+    status_ = Status::Actived;
+    return true;
+  }
 
-	return false;
+  return false;
 }
 
 bool Timer::Stop()
@@ -123,40 +123,36 @@ bool TimerMgr::SetTimer(Timer *t)
 
 bool TimerMgr::StopTimer(Timer *t)
 {
-	if (t->GetId() == 0)
-		return false;
+  if (t->GetId() == 0)
+    return false;
 
-	auto it = std::find_if(timers_.begin(), timers_.end(),
-			[t](const Timer *o) { return t->GetId() == o->GetId(); });
+  auto it = std::find_if(timers_.begin(), timers_.end(),
+      [t](const Timer *o) { return t->GetId() == o->GetId(); });
 
-	if (it != timers_.end()) {
-		timers_.erase(it);
-		XMA_DEBUG("[%s]Remove timer id=%lu", t->Name().c_str(), t->GetId());
-		return true;
-	}
+  if (it != timers_.end()) {
+    timers_.erase(it);
+    XMA_DEBUG("[%s]Remove timer id=%lu", t->Name().c_str(), t->GetId());
+    return true;
+  }
 
-	XMA_DEBUG("[%s]Remove timer failed, timer  id=%lu not found.", t->Name().c_str(), t->GetId());
-	return false;
+  XMA_DEBUG("[%s]Remove timer failed, timer  id=%lu not found.", t->Name().c_str(), t->GetId());
+  return false;
 }
 
 Duration TimerMgr::CheckTimers()
 {
-	Timepoint now = Clock::now();
-	auto it = timers_.begin();
-	while ((it != timers_.end()) && ((*it)->GetTimepoint() <= now)) {
-		XMA_DEBUG("[%s]Timer elapsed, id=%lu, %s.", \
-							(*it)->Name().c_str(), (*it)->GetId(), \
-							TimeUtil::TimeToStr((*it)->GetTimepoint()).c_str());
-		(*it)->DoHandle(*it);
-		it = timers_.erase(it);
-		XMA_DEBUG("[TimeMgr]%lu timer left.", timers_.size());
-	}
+  Timepoint now = Clock::now();
+  auto it = timers_.begin();
+  while ((it != timers_.end()) && ((*it)->GetTimepoint() <= now)) {
+    (*it)->DoHandle(*it);
+    it = timers_.erase(it);
+  }
 
-	it = timers_.begin();
-	if (it == timers_.end())
-		return Duration(0);
-	else
-		return std::chrono::duration_cast<Duration>((*it)->GetTimepoint() - now);
+  it = timers_.begin();
+  if (it == timers_.end())
+    return Duration(0);
+  else
+    return std::chrono::duration_cast<Duration>((*it)->GetTimepoint() - now);
 }
 
 } //namespace xma

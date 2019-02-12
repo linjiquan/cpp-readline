@@ -2,6 +2,7 @@
 
 // Internal
 #include "xma_listener.h"
+#include "xma_service.h"
 
 namespace xma {
 
@@ -17,12 +18,7 @@ public:
 	
 	/// Add one or more events to listen for
 	/// @param events   An EPOLL event or event bitmask
-	bool AddEvents(uint events);
-	
-	/// Remove one or more events
-	/// The event mask of the FD will be updated if changed
-	/// @param events   An EPOLL event or event bitmask
-	bool RemoveEvents(uint events);
+	bool SetEvents(uint events);
 
 	int GetFd();
 	void SetFd(int fd);
@@ -35,7 +31,6 @@ public:
 private: 
   int fd_;
 	Epoll *epoll_;
-	struct epoll_event events_;
 };	
 
 /// An C++ wrapper for epoll

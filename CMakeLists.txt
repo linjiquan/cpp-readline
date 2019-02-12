@@ -51,6 +51,7 @@ set(${LIB_NAME}_LIB ${lib_name})
 
 # Add subdirectories here
 add_subdirectory(src)
+add_subdirectory(client)
 if(BUILD_EXAMPLES)
     add_subdirectory(example)
 endif()

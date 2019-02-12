@@ -84,7 +84,7 @@ src/preinstall:
 src/CMakeFiles/xma.dir/all:
 	$(MAKE) -f src/CMakeFiles/xma.dir/build.make src/CMakeFiles/xma.dir/depend
 	$(MAKE) -f src/CMakeFiles/xma.dir/build.make src/CMakeFiles/xma.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/brant/cpp-readline/CMakeFiles --progress-num=4,5,6,7,8,9,10,11,12,13 "Built target xma"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/brant/cpp-readline/CMakeFiles --progress-num=5,6,7,8,9,10,11,12,13,14 "Built target xma"
 .PHONY : src/CMakeFiles/xma.dir/all
 
 # Include target in all.
@@ -115,6 +115,61 @@ clean: src/CMakeFiles/xma.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Directory level rules for directory client
+
+# Convenience name for "all" pass in the directory.
+client/all: client/CMakeFiles/client.dir/all
+
+.PHONY : client/all
+
+# Convenience name for "clean" pass in the directory.
+client/clean: client/CMakeFiles/client.dir/clean
+
+.PHONY : client/clean
+
+# Convenience name for "preinstall" pass in the directory.
+client/preinstall:
+
+.PHONY : client/preinstall
+
+#=============================================================================
+# Target rules for target client/CMakeFiles/client.dir
+
+# All Build rule for target.
+client/CMakeFiles/client.dir/all: src/CMakeFiles/xma.dir/all
+	$(MAKE) -f client/CMakeFiles/client.dir/build.make client/CMakeFiles/client.dir/depend
+	$(MAKE) -f client/CMakeFiles/client.dir/build.make client/CMakeFiles/client.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/brant/cpp-readline/CMakeFiles --progress-num=1,2 "Built target client"
+.PHONY : client/CMakeFiles/client.dir/all
+
+# Include target in all.
+all: client/CMakeFiles/client.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+client/CMakeFiles/client.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/brant/cpp-readline/CMakeFiles 12
+	$(MAKE) -f CMakeFiles/Makefile2 client/CMakeFiles/client.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/brant/cpp-readline/CMakeFiles 0
+.PHONY : client/CMakeFiles/client.dir/rule
+
+# Convenience name for target.
+client: client/CMakeFiles/client.dir/rule
+
+.PHONY : client
+
+# clean rule for target.
+client/CMakeFiles/client.dir/clean:
+	$(MAKE) -f client/CMakeFiles/client.dir/build.make client/CMakeFiles/client.dir/clean
+.PHONY : client/CMakeFiles/client.dir/clean
+
+# clean rule for target.
+clean: client/CMakeFiles/client.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Directory level rules for directory example
 
 # Convenience name for "all" pass in the directory.
@@ -139,7 +194,7 @@ example/preinstall:
 example/CMakeFiles/cpp_readline.dir/all: src/CMakeFiles/xma.dir/all
 	$(MAKE) -f example/CMakeFiles/cpp_readline.dir/build.make example/CMakeFiles/cpp_readline.dir/depend
 	$(MAKE) -f example/CMakeFiles/cpp_readline.dir/build.make example/CMakeFiles/cpp_readline.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/brant/cpp-readline/CMakeFiles --progress-num=1,2,3 "Built target cpp_readline"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/brant/cpp-readline/CMakeFiles --progress-num=3,4 "Built target cpp_readline"
 .PHONY : example/CMakeFiles/cpp_readline.dir/all
 
 # Include target in all.
@@ -149,7 +204,7 @@ all: example/CMakeFiles/cpp_readline.dir/all
 
 # Build rule for subdir invocation for target.
 example/CMakeFiles/cpp_readline.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/brant/cpp-readline/CMakeFiles 13
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/brant/cpp-readline/CMakeFiles 12
 	$(MAKE) -f CMakeFiles/Makefile2 example/CMakeFiles/cpp_readline.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/brant/cpp-readline/CMakeFiles 0
 .PHONY : example/CMakeFiles/cpp_readline.dir/rule

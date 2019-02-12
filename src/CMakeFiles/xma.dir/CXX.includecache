@@ -51,10 +51,14 @@ xma_internal.h
 /home/brant/cpp-readline/src/xma_internal.h
 xma_epoll.h
 /home/brant/cpp-readline/src/xma_epoll.h
+xma_process.h
+/home/brant/cpp-readline/src/xma_process.h
 
 /home/brant/cpp-readline/src/xma_epoll.h
 xma_listener.h
 /home/brant/cpp-readline/src/xma_listener.h
+xma_service.h
+/home/brant/cpp-readline/src/xma_service.h
 
 /home/brant/cpp-readline/src/xma_internal.h
 iostream
@@ -265,6 +269,8 @@ xma_internal.h
 /home/brant/cpp-readline/src/xma_internal.h
 xma_socket.h
 /home/brant/cpp-readline/src/xma_socket.h
+xma_process.h
+/home/brant/cpp-readline/src/xma_process.h
 
 /home/brant/cpp-readline/src/xma_socket.h
 cstring

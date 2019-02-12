@@ -152,33 +152,6 @@ main.cpp.s:
 	cd /home/brant/cpp-readline && $(MAKE) -f example/CMakeFiles/cpp_readline.dir/build.make example/CMakeFiles/cpp_readline.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-tcp_echo_server.o: tcp_echo_server.cpp.o
-
-.PHONY : tcp_echo_server.o
-
-# target to build an object file
-tcp_echo_server.cpp.o:
-	cd /home/brant/cpp-readline && $(MAKE) -f example/CMakeFiles/cpp_readline.dir/build.make example/CMakeFiles/cpp_readline.dir/tcp_echo_server.cpp.o
-.PHONY : tcp_echo_server.cpp.o
-
-tcp_echo_server.i: tcp_echo_server.cpp.i
-
-.PHONY : tcp_echo_server.i
-
-# target to preprocess a source file
-tcp_echo_server.cpp.i:
-	cd /home/brant/cpp-readline && $(MAKE) -f example/CMakeFiles/cpp_readline.dir/build.make example/CMakeFiles/cpp_readline.dir/tcp_echo_server.cpp.i
-.PHONY : tcp_echo_server.cpp.i
-
-tcp_echo_server.s: tcp_echo_server.cpp.s
-
-.PHONY : tcp_echo_server.s
-
-# target to generate assembly for a file
-tcp_echo_server.cpp.s:
-	cd /home/brant/cpp-readline && $(MAKE) -f example/CMakeFiles/cpp_readline.dir/build.make example/CMakeFiles/cpp_readline.dir/tcp_echo_server.cpp.s
-.PHONY : tcp_echo_server.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -191,9 +164,6 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... tcp_echo_server.o"
-	@echo "... tcp_echo_server.i"
-	@echo "... tcp_echo_server.s"
 .PHONY : help
 
 

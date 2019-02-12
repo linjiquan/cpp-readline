@@ -7,12 +7,10 @@ namespace xma {
 ///-----------------------------ProcessMsgLienster---------------------------------------
 ProcessMsgListener::ProcessMsgListener(std::string name, ListenerContainer c, int fd): EpollListener(name, c, fd)
 {
-	
-	XMA_DEBUG("ProcessMsgLienster(): %s", Name().c_str());
-
-	Epoll &epoll = c->GetContext()->GetContext().GetEpoll();
-	epoll.Add(this);
-	AddEvents(EPOLLIN | EPOLLERR | EPOLLHUP);
+  XMA_DEBUG("ProcessMsgLienster(): %s", Name().c_str());
+  Epoll &epoll = c->GetContext()->GetContext().GetEpoll();
+  epoll.Add(this);
+  SetEvents(EPOLLIN | EPOLLERR | EPOLLHUP);
 }
 
 ProcessMsgListener::~ProcessMsgListener() {
@@ -203,28 +201,28 @@ bool Process::RestartTimer(Timer *t)
 
 void Process::Main() {
 #define MAX_EVENTS 1024
-	int nfds;
-	int timeout = 10;
+  int nfds;
+  int timeout = 10;
 
-	epoll_event events[MAX_EVENTS];
-	while(IsRunning() && (nfds = GetContext().GetEpoll().Wait(events, MAX_EVENTS, timeout)) != -1)
-	{
-		timeout = std::min(static_cast<int>(proc_svc_->timer_mgr_.CheckTimers().count()), timeout);
-		if (timeout <= 0)
-			timeout = 10;
+  epoll_event events[MAX_EVENTS];
+  while(IsRunning() && (nfds = GetContext().GetEpoll().Wait(events, MAX_EVENTS, timeout)) != -1)
+  {
+    timeout = std::min(static_cast<int>(proc_svc_->timer_mgr_.CheckTimers().count()), timeout);
+    if (timeout <= 0)
+      timeout = 10;
 
-	  for (int i = 0; i < nfds; ++i )
-	  {
-		  EpollListener *l = reinterpret_cast<EpollListener *>(events[i].data.ptr);
-		  if (l == nullptr) {
-			  std::cout << "Invalid epoll event: fd=" << events[i].data.fd << ";ptr=" << events[i].data.ptr << std::endl;
-			  continue;
-		  }
-	
-		  std::cout << "l: "  << l << ";ptr: " << events[i].data.ptr << std::endl;
+    for (int i = 0; i < nfds; ++i )
+    {
+      EpollListener *l = reinterpret_cast<EpollListener *>(events[i].data.ptr);
+      if (l == nullptr) {
+        std::cout << "Invalid epoll event: fd=" << events[i].data.fd << ";ptr=" << events[i].data.ptr << std::endl;
+        continue;
+      }
 
-		  l->Handle(&events[i]);
-	  }
-	}
+      std::cout << "l: "  << l << ";ptr: " << events[i].data.ptr << std::endl;
+
+      l->Handle(&events[i]);
+    }
+  }
 }
 } //namespace xma

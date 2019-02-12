@@ -66,12 +66,7 @@ struct SocketStats
 class Socket : public EpollListener
 {
 public:
-	Socket(std::string name, ListenerContainer c): EpollListener(name, c) {
-    SetState(State::CREATED);
-    SetErr(Error::NO_ERR);
-    create_timestamp_ = TimeUtil::GetTime();
-    ResetStats();
-  }
+	Socket(std::string name, ListenerContainer c);
 	virtual ~Socket() {}
 
 
@@ -122,7 +117,8 @@ public:
   ///wired anytime when error occours
   ///it is better to be override in the application level
   ///like change the application status and something like this
-  virtual bool OnError(Error err_code);
+  ///move to service
+  ///virtual bool OnError(Error err_code);
 
   virtual StreamSocket *OnCreate(int fd);
 
@@ -209,7 +205,7 @@ public:
 
   void SetRxSize(uint32_t size);
   void SetTxSize(uint32_t size);
-  void SetReceiver(Listener *receiver) { receiver_ = std::shared_ptr<Listener>(receiver); }
+  void SetReceiver(Listener *receiver);
 
   /// in the future, we can use the message cache, not buffer cache
   /// it should be implemented in the application layer
@@ -228,7 +224,7 @@ public:
   uint32_t GetInitBuffLen() { return buff_len; }
   
 protected:
-  std::shared_ptr<Listener> receiver_;
+  Listener* receiver_{nullptr};
 
   void AddClients(TcpSocket *c);
   void RemoveClients(TcpSocket *c);

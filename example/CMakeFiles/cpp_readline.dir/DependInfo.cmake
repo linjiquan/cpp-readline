@@ -5,7 +5,6 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/brant/cpp-readline/example/main.cpp" "/home/brant/cpp-readline/example/CMakeFiles/cpp_readline.dir/main.cpp.o"
-  "/home/brant/cpp-readline/example/tcp_echo_server.cpp" "/home/brant/cpp-readline/example/CMakeFiles/cpp_readline.dir/tcp_echo_server.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

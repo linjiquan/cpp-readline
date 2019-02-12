@@ -125,33 +125,6 @@ client/fast:
 	cd /home/brant/cpp-readline && $(MAKE) -f client/CMakeFiles/client.dir/build.make client/CMakeFiles/client.dir/build
 .PHONY : client/fast
 
-client_process.o: client_process.cpp.o
-
-.PHONY : client_process.o
-
-# target to build an object file
-client_process.cpp.o:
-	cd /home/brant/cpp-readline && $(MAKE) -f client/CMakeFiles/client.dir/build.make client/CMakeFiles/client.dir/client_process.cpp.o
-.PHONY : client_process.cpp.o
-
-client_process.i: client_process.cpp.i
-
-.PHONY : client_process.i
-
-# target to preprocess a source file
-client_process.cpp.i:
-	cd /home/brant/cpp-readline && $(MAKE) -f client/CMakeFiles/client.dir/build.make client/CMakeFiles/client.dir/client_process.cpp.i
-.PHONY : client_process.cpp.i
-
-client_process.s: client_process.cpp.s
-
-.PHONY : client_process.s
-
-# target to generate assembly for a file
-client_process.cpp.s:
-	cd /home/brant/cpp-readline && $(MAKE) -f client/CMakeFiles/client.dir/build.make client/CMakeFiles/client.dir/client_process.cpp.s
-.PHONY : client_process.cpp.s
-
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -188,9 +161,6 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... client"
-	@echo "... client_process.o"
-	@echo "... client_process.i"
-	@echo "... client_process.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

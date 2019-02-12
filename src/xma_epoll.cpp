@@ -10,20 +10,17 @@
 // Internal
 #include "xma_internal.h"
 #include "xma_epoll.h"
+#include "xma_process.h"
 
 namespace xma {
 ///------------------------------------------------EpollLienster-----------------------------------------
 	EpollListener::EpollListener(std::string name, ListenerContainer c, int fd): Listener(name, c), fd_(fd), epoll_(nullptr) 
 	{
-		events_.data.ptr = this;
-		events_.events = 0;
 	}
 	
 	EpollListener::EpollListener(std::string name, ListenerContainer c): Listener(name, c), epoll_(nullptr) 
 	{
-		fd_ = -1;
-		events_.data.ptr = this;
-		events_.events = 0;
+    fd_ = -1;
 	}
 
 
@@ -44,81 +41,56 @@ namespace xma {
   
   bool EpollListener::Start(int fd)
   {
-		assert (epoll_ != nullptr);
-
-    if (fd_ != -1) {
+    if (GetFd() != -1) {
       XMA_DEBUG("This listener is still using by fd %d", fd_);
       return false;
     }
 
-    if (fd_ == fd) {
-      XMA_DEBUG ("Same FD. fd=%d", fd_);
-      return true;
-    }
+    SetFd(fd);
 
-    fd_ = fd;
-    
-		events_.data.ptr = this;
-		events_.events = 0;
-
-    epoll_->Add(this);
+    Epoll &epoll = GetContainer()->GetContext()->GetContext().GetEpoll();
+    epoll.Add(this);
 
 		return true;
   }	
-	bool EpollListener::AddEvents(uint events)
-	{
-		XMA_DEBUG("(obj=%p) events = 0x%x", (void *)this, events);
+  bool EpollListener::SetEvents(uint events)
+  {
+    XMA_DEBUG("[%s]Set events = 0x%x", Name().c_str(), events);
 
-		if (GetFd() == -1) {
-			XMA_DEBUG("%s: No associated FD.\n", Name().c_str());
-			return false;
-		}
+    if (GetFd() == -1) {
+      XMA_DEBUG("%s: No associated FD.\n", Name().c_str());
+      return false;
+    }
 
-		// Check if the bit mask will be changed by the update
-		if ((events_.events | events) != events_.events)
-		{
-		  events_.events |= events;
+    struct epoll_event ee;
+    memset (&ee, 0x00, sizeof(ee));
+    ee.events = events;
+    ee.data.ptr = this;
 
-		  if (epoll_)
-		  {
-			if(epoll_->Ctl(EPOLL_CTL_MOD, GetFd(), &events_) < 0)
-			{
-			  XMA_DEBUG("(obj=%p) Failed to modify EPOLL, reason = %s", (void *)this, strerror(errno));
-			  return false;
-			}
-		  }
-		}
-		
-		return true;
-	}
+    assert (epoll_ != nullptr);
 
-	bool EpollListener::RemoveEvents(uint events)
-	{
-		XMA_DEBUG( "(obj=%p) events = 0x%x", (void *)this, events );
-		
-		if (GetFd() == -1) {
-			XMA_DEBUG("%s: No associated FD", Name().c_str());
-			return false;
-		}
+    if (epoll_)
+    {
+      if(epoll_->Ctl(EPOLL_CTL_MOD, GetFd(), &ee) < 0)
+      {
+        XMA_DEBUG("(obj=%p) Failed to modify EPOLL, reason = %s", (void *)this, strerror(errno));
+        return false;
+      } 
+      else
+      {
+        XMA_DEBUG("[%s] Epoll object add events done.", Name().c_str());
+      }
+    }
+    else
+    {
+      XMA_DEBUG("[%s] Epoll object is null.", Name().c_str());
+      return false;
+    }
 
-		// Check if the bit mask will be changed by the update
-		if(events_.events & events)
-		{
-		  events_.events ^= events;
+    
+    return true;
+  }
 
-		  if(epoll_)
-		  {
-			if(epoll_->Ctl(EPOLL_CTL_MOD, GetFd(), &events_) < 0)
-			{
-			  XMA_DEBUG( "(obj=%p) Failed to modify EPOLL, reason = %s", (void *)this, strerror(errno));
-			  return false;
-			}
-		  }
-		}
-		
-		return true;
-	}
-  
 	int EpollListener::GetFd() 
 	{ 
 		return fd_; 
@@ -164,8 +136,8 @@ namespace xma {
       throw std::runtime_error(std::string("Failed to add epoll listener, err=")  + strerror(errno));		
     }
     
-	l->SetEpoll(this);
-	
+    l->SetEpoll(this);
+
     ++fds_;
   }
 

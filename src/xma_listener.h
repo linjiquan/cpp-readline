@@ -86,11 +86,13 @@ public:
 	static void Register(Listener *l) { 
 		std::unique_lock<std::mutex> lock(mutex_);
 		listeners_.push_back(l);
+		XMA_DEBUG("[%s] Register %p, size=%lu", l->Name().c_str(), (void *)l, listeners_.size());
 	}
 
 	static void UnRegister(Listener *l) {
 		std::unique_lock<std::mutex> lock(mutex_);
 		listeners_.remove(l);
+		XMA_DEBUG("[%s] Unregister %p, size=%lu", l->Name().c_str(), (void *)l, listeners_.size());
 	}
 
 	static int Size() {

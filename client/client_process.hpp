@@ -59,6 +59,3 @@ public:
 private:
   TcpClientService *client_;
 };
-
-TcpClientProcess client_process;
-

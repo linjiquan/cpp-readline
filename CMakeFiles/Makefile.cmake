@@ -11,6 +11,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.5.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.5.1/CMakeSystem.cmake"
   "CMakeLists.txt"
+  "client/CMakeLists.txt"
   "cmake/modules/FindReadline.cmake"
   "example/CMakeLists.txt"
   "src/CMakeLists.txt"
@@ -49,11 +50,13 @@ set(CMAKE_MAKEFILE_OUTPUTS
 set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "client/CMakeFiles/CMakeDirectoryInformation.cmake"
   "example/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "src/CMakeFiles/xma.dir/DependInfo.cmake"
+  "client/CMakeFiles/client.dir/DependInfo.cmake"
   "example/CMakeFiles/cpp_readline.dir/DependInfo.cmake"
   )
