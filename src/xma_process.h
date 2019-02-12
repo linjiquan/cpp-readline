@@ -48,7 +48,7 @@ public:
 //	int SetTimer(Duration d, void *data);
 //	void StopTimer(int timer_id);
 
-	TimerServer timer_server_;
+	TimerMgr timer_mgr_;
 
 private:
   void OnInit();
@@ -80,7 +80,7 @@ public:
 	
 	void AddService(Service *svc) { svcs_.push_back(svc); }
 	void CreateMsgLienster();
-	TimerServer &GetTimerServer();
+	TimerMgr &GetTimerMgr();
 
 	virtual void OnInit()  {
 		std::cout << "Basic Process OnInit()" << std::endl;

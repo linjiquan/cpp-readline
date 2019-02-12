@@ -10,7 +10,7 @@
 namespace xma {
 
 class Timer;
-class TimerServer;
+class TimerMgr;
 
 using Clock = std::chrono::high_resolution_clock;
 using Timepoint = Clock::time_point;
@@ -59,11 +59,11 @@ private:
 	Timepoint tp_;
 };
 
-class TimerServer
+class TimerMgr
 {
 public:
-	TimerServer();
-	virtual ~TimerServer() {}
+	TimerMgr();
+	virtual ~TimerMgr() {}
 
 	bool SetTimer(Timer *t);
 	bool StopTimer(Timer *t);

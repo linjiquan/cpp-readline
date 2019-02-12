@@ -48,7 +48,7 @@ Timer::Timer(std::string name, ListenerContainer c, Duration expire):Listener(na
 {
 	status_ = Status::Deactived;
 	expire_ = expire;
-	id_ = c->GetContext()->GetTimerServer().GetId();
+	id_ = c->GetContext()->GetTimerMgr().GetId();
 	XMA_DEBUG("[%s]Create timer, duration: %lu", Name().c_str(), expire_.count());
 }
 
@@ -107,23 +107,21 @@ bool Timer::DoHandle(void *data)
 }
 
 ///----------------Timer server-----------------------
-TimerServer::TimerServer():id_(0)
+TimerMgr::TimerMgr():id_(0)
 {
 }
 
-bool TimerServer::SetTimer(Timer *t)
+bool TimerMgr::SetTimer(Timer *t)
 {
 	auto it = std::find_if(timers_.begin(), timers_.end(), 
 			[t](const Timer *o) { return t->GetTimepoint() < o->GetTimepoint();  } );
 
 	timers_.emplace(it, t);
-
-	XMA_DEBUG("Set timer %p,  %lu, %s, %lu.", (void *)t, t->GetId(), t->Name().c_str(), timers_.size());
 	
 	return true;
 }
 
-bool TimerServer::StopTimer(Timer *t)
+bool TimerMgr::StopTimer(Timer *t)
 {
 	if (t->GetId() == 0)
 		return false;
@@ -141,7 +139,7 @@ bool TimerServer::StopTimer(Timer *t)
 	return false;
 }
 
-Duration TimerServer::CheckTimers()
+Duration TimerMgr::CheckTimers()
 {
 	Timepoint now = Clock::now();
 	auto it = timers_.begin();
@@ -151,6 +149,7 @@ Duration TimerServer::CheckTimers()
 							TimeUtil::TimeToStr((*it)->GetTimepoint()).c_str());
 		(*it)->DoHandle(*it);
 		it = timers_.erase(it);
+		XMA_DEBUG("[TimeMgr]%lu timer left.", timers_.size());
 	}
 
 	it = timers_.begin();

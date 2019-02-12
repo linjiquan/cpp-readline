@@ -172,24 +172,24 @@ bool Process::SendMsg(Msg *msg)
   return proc_svc_->SendMsg(msg);
 }
 
-TimerServer &Process::GetTimerServer()
+TimerMgr &Process::GetTimerMgr()
 {
 	assert (proc_svc_ != nullptr);
-	return proc_svc_->timer_server_;
+	return proc_svc_->timer_mgr_;
 }
 
 bool Process::SetTimer(Timer *t)
 {
 	assert (proc_svc_ != nullptr);
 
-	return proc_svc_->timer_server_.SetTimer(t);
+	return proc_svc_->timer_mgr_.SetTimer(t);
 }
 
 bool Process::StopTimer(Timer *t)
 {
 	assert (proc_svc_ != nullptr);
 
-	return proc_svc_->timer_server_.StopTimer(t);
+	return proc_svc_->timer_mgr_.StopTimer(t);
 }
 bool Process::RestartTimer(Timer *t)
 {
@@ -204,14 +204,14 @@ bool Process::RestartTimer(Timer *t)
 void Process::Main() {
 #define MAX_EVENTS 1024
 	int nfds;
-	int timeout = 3;
+	int timeout = 10;
 
 	epoll_event events[MAX_EVENTS];
 	while(IsRunning() && (nfds = GetContext().GetEpoll().Wait(events, MAX_EVENTS, timeout)) != -1)
 	{
-		timeout = std::min(static_cast<int>(proc_svc_->timer_server_.CheckTimers().count()), timeout);
+		timeout = std::min(static_cast<int>(proc_svc_->timer_mgr_.CheckTimers().count()), timeout);
 		if (timeout <= 0)
-			timeout = 3;
+			timeout = 10;
 
 	  for (int i = 0; i < nfds; ++i )
 	  {

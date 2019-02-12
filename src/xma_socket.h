@@ -147,6 +147,8 @@ public:
   virtual bool OnClose();
   
   SocketStats &GetStats() { return stats_; }
+  void ResetStats();
+  void ShowStats();
 
 protected:
   virtual bool Accept() = 0;
@@ -174,8 +176,6 @@ protected:
 	void SetAddr(const std::string & addr) { addr_ = addr; }
 	void SetPeerAddr(const std::string & addr) { peer_addr_ = addr; }
 
-  void ResetStats();
-  void ShowStats();
 
   bool StoreAddrInfo();
 public:
