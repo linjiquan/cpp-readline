@@ -1,0 +1,1 @@
+/usr/bin/c++      CMakeFiles/client.dir/main.cpp.o CMakeFiles/client.dir/client_process.cpp.o  -o client  -L/usr/local/lib -rdynamic ../src/libxma.so.0.1.0 -lreadline -lpthread -levent -Wl,-rpath,/usr/local/lib:/home/brant/cpp-readline/src 
