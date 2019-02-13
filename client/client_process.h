@@ -21,6 +21,8 @@
 
 using namespace xma;
 
+#define TCP_CLIENT_PROC  "TcpClient"
+
 class TcpClientProcess: public Process
 {
 public:
@@ -29,6 +31,7 @@ public:
 
   void RegisterCommand() override;
   void OnInit() override ;
+	TcpClientService *GetClientService();
 
 private:
   TcpClientService *client_;

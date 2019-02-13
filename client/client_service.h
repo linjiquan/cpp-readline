@@ -44,6 +44,8 @@ public:
 
   bool OnSocketErr(Socket *s) override;
   void StartClient(std::string server_addr, uint16_t server_port);
+	void StopClient();
+	void ShowStats();
   void OnInit();
 
 private:

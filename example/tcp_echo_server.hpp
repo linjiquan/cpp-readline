@@ -40,14 +40,16 @@ public:
 
     static char buff[512];
     
-    int len = s->ReadMsg(buff, 512);
+    int len = s->ReadMsg(buff, 30);
 
     if (len < 0) { //read error
       s->Close();
       return false;
     }
 
+    s->ShowStats();
     if (len > 0) {
+      std::cout << "Recv:" << buff << std::endl;
       read_bytes+= len;
       read_pkt++;
     }

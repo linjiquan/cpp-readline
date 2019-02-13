@@ -18,12 +18,12 @@
 #include "../src/xma_application.h"
 #include "../src/xma_process.h"
 #include "client_process.h"
+#include "client_msg.hpp"
 
 using namespace xma;
 
-#define TCP_CLIENT  "TcpClient"
 
-TcpClientProcess::TcpClientProcess(): Process(TCP_CLIENT, 0), client_(nullptr) {
+TcpClientProcess::TcpClientProcess(): Process(TCP_CLIENT_PROC, 0), client_(nullptr) {
   XMA_DEBUG("[%s]Process starting...", Name().c_str());
 }
 
@@ -45,30 +45,29 @@ void TcpClientProcess::RegisterCommand()
       return 0;
     }
 
-    class StartConnect: public Msg
-    {
-    public:
-      StartConnect(): Msg("StartConnect") {}
-
-      void Handler() override 
-      {
-        TcpClientProcess *proc = dynamic_cast<TcpClientProcess *>(Thread::current_);
-        proc->client_->StartClient(address, port);
-      }
-      
-      std::string address;
-      uint16_t port;
-    };
-
     StartConnect *m = new StartConnect();
     m->address = args[1];
     m->port = std::stoi(args[2]);
 
-    if (!Msg::Send(TCP_CLIENT, m))
+    if (!Msg::Send(TCP_CLIENT_PROC, m))
       delete m;
 
     return 0;
   });
+
+  s.RegisterCommand("Disconnect", "Disconnect the current connection", [&] (ShellFuncArgs args) -> int {
+    Msg::Send(TCP_CLIENT_PROC, new StopConnect());
+    return 0;
+  });
+
+  s.RegisterCommand("ShowStats", "Show the current connection stats", [&] (ShellFuncArgs args) -> int {
+    this->GetClientService()->ShowStats();
+    return 0;
+  });
+}
+
+TcpClientService * TcpClientProcess::GetClientService() {
+  return client_;
 }
 
 void TcpClientProcess::OnInit() {

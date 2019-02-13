@@ -55,7 +55,7 @@ void Socket::ShowStats()
 {
   #define _w (30)
 
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_pkts" << stats_.tx_pkts << std::endl;  
+	std::cout << XMA_LEFT_OUTPUT(_w) << "rx_pkts" << stats_.rx_pkts << std::endl;  
 	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_pkts" << stats_.tx_pkts << std::endl;
 	std::cout << XMA_LEFT_OUTPUT(_w) << "rx_bytes" << stats_.rx_bytes << std::endl;  
 	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_bytes" << stats_.tx_bytes << std::endl;  
@@ -63,8 +63,8 @@ void Socket::ShowStats()
 	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_pkts_err" << stats_.tx_pkts_err << std::endl;
 	std::cout << XMA_LEFT_OUTPUT(_w) << "rx_bytes_err" << stats_.rx_bytes_err << std::endl;  
 	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_bytes_err" << stats_.tx_bytes_err << std::endl;  
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_err" << stats_.tx_err << std::endl;  
 	std::cout << XMA_LEFT_OUTPUT(_w) << "rx_err" << stats_.rx_err << std::endl;
+	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_err" << stats_.tx_err << std::endl;  
 	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_partial" << stats_.tx_partial << std::endl; //it is used for measure the network quality
 	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_eagin" << stats_.tx_eagin << std::endl; //it is used for measure the network quality
 	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_cache" << stats_.tx_cache << std::endl; //it is used for measure the network quality
@@ -122,7 +122,7 @@ bool Socket::StoreAddrInfo()
 
 bool Socket::DoReadWrite(uint events)
 {
-  if ((events & EPOLLIN) && !OnRead()) {
+  if ((events & EPOLLIN) && !Read()) {
     SetErr(Error::READ_FAIL);
     return GetContainer()->OnSocketErr(this);
   }

@@ -6,6 +6,8 @@
 
 #IncludeRegexTransform: 
 
+/home/brant/cpp-readline/client/client_msg.hpp
+
 /home/brant/cpp-readline/client/client_process.cpp
 iostream
 -
@@ -35,6 +37,8 @@ netdb.h
 /home/brant/cpp-readline/src/xma_process.h
 client_process.h
 /home/brant/cpp-readline/client/client_process.h
+client_msg.hpp
+/home/brant/cpp-readline/client/client_msg.hpp
 
 /home/brant/cpp-readline/client/client_process.h
 iostream

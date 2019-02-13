@@ -146,32 +146,30 @@ public:
   void ResetStats();
   void ShowStats();
 
+	State GetState() const { return state_; }
+	void SetState( State state ) { state_ = state; }
+	std::string GetStrState() const;
+
+	void SetErr(Error err) { last_err_ = err;}
+	Error GetErr() const { return last_err_; }
+	std::string GetStrErr() const;
+
+	uint16_t GetPort() { return port_; }
+	uint16_t GetPeerPort() { return peer_port_; }
+	const std::string & GetAddr() { return addr_; }
+	const std::string & GetPeerAddr() { return peer_addr_; }
+
+	void SetPort(uint16_t port) { port_ = port; }
+	void SetPeerPort(uint16_t port) { peer_port_ = port; }
+	void SetAddr(const std::string & addr) { addr_ = addr; }
+	void SetPeerAddr(const std::string & addr) { peer_addr_ = addr; }
+	
 protected:
   virtual bool Accept() = 0;
   virtual bool Write()   = 0;
   virtual bool Read() {
    throw std::runtime_error("not supported yet");    
   }
-  
-
-	State GetState() const { return state_; }
-	void SetState( State state ) { state_ = state; }
-  std::string GetStrState() const;
-
-  void SetErr(Error err) { last_err_ = err;}
-  Error GetErr() const { return last_err_; }
-  std::string GetStrErr() const;
-
-	uint16_t GetPort() { return port_; }
-	uint16_t GetPeerPort() { return peer_port_; }
-	const std::string & GetAddr() { return addr_; }
-	const std::string & GetPeerAddr() { return peer_addr_; }
-	
-	void SetPort(uint16_t port) { port_ = port; }
-	void SetPeerPort(uint16_t port) { peer_port_ = port; }
-	void SetAddr(const std::string & addr) { addr_ = addr; }
-	void SetPeerAddr(const std::string & addr) { peer_addr_ = addr; }
-
 
   bool StoreAddrInfo();
 public:

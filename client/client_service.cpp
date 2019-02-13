@@ -44,8 +44,8 @@ void TcpClientTimer::Timeout()
 
 void TcpClientTimer::SendData() {
   static char buff[512];
-  memset (buff, 0xaa, sizeof(buff));
-  client_->WriteMsg(buff, sizeof(buff));
+  sprintf (buff, "I'm from client @ %s\n", TimeUtil::TimeToStr(Clock::now()).c_str());
+  client_->WriteMsg(buff, strlen(buff));
 }
 
 ///---------------TCP client-----------------------------------------------------------
@@ -96,16 +96,45 @@ bool TcpClientService::OnSocketErr(Socket *s)
 
 void TcpClientService::StartClient(std::string server_addr, uint16_t server_port)
 {
-  assert (client_ != nullptr);
-  if (!client_->OpenClient(server_addr, server_port, AF_INET)) {
-    std::cout << "Open client failed." << std::endl;
+  if (client_ != nullptr) {
+    std::cout << "Client is connected, please stop it firstly." << std::endl;
     return ;
   }
+
+  client_ = new TcpClient(this);
+  if (!client_->OpenClient(server_addr, server_port, AF_INET)) {
+    std::cout << "Open client failed." << std::endl;
+    delete client_;
+    client_ = nullptr;
+    return ;
+  }
+  
+  std::cout << "Connected to " << server_addr << ":" << server_port << std::endl;
+}
+
+void TcpClientService::StopClient()
+{
+  if (client_ == nullptr)
+    return ;
+
+  
+  std::cout << "Disconnected from " << client_->GetPeerAddr() << ":" << client_->GetPeerPort() << std::endl;
+  client_->Close();
+  delete client_;
+  client_ = nullptr;
+}
+
+void TcpClientService::ShowStats()
+{
+  if (client_ == nullptr)
+    return ;
+
+  client_->ShowStats();
 }
 
 void TcpClientService::OnInit() {
   //create local tcp echo server
-  client_ = new TcpClient(this); 
+  //client_ = new TcpClient(this); 
 
   //only for test
   //StartClient("127.0.0.1", 9527);
