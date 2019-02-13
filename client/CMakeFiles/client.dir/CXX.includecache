@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/brant/cpp-readline/client/client_process.hpp
+/home/brant/cpp-readline/client/client_process.cpp
 iostream
 -
 string
@@ -33,10 +33,40 @@ netdb.h
 /home/brant/cpp-readline/src/xma_application.h
 ../src/xma_process.h
 /home/brant/cpp-readline/src/xma_process.h
-client_service.hpp
-/home/brant/cpp-readline/client/client_service.hpp
+client_process.h
+/home/brant/cpp-readline/client/client_process.h
 
-/home/brant/cpp-readline/client/client_service.hpp
+/home/brant/cpp-readline/client/client_process.h
+iostream
+-
+string
+-
+thread
+-
+vector
+-
+sys/types.h
+-
+sys/socket.h
+-
+netinet/in.h
+-
+netinet/ip.h
+-
+arpa/inet.h
+-
+netdb.h
+-
+../src/xma_shell.h
+/home/brant/cpp-readline/src/xma_shell.h
+../src/xma_application.h
+/home/brant/cpp-readline/src/xma_application.h
+../src/xma_process.h
+/home/brant/cpp-readline/src/xma_process.h
+client_service.h
+/home/brant/cpp-readline/client/client_service.h
+
+/home/brant/cpp-readline/client/client_service.cpp
 iostream
 -
 string
@@ -71,6 +101,18 @@ netdb.h
 /home/brant/cpp-readline/src/xma_socket.h
 ../src/xma_timer.h
 /home/brant/cpp-readline/src/xma_timer.h
+client_service.h
+/home/brant/cpp-readline/client/client_service.h
+
+/home/brant/cpp-readline/client/client_service.h
+../src/xma_service.h
+/home/brant/cpp-readline/src/xma_service.h
+../src/xma_internal.h
+/home/brant/cpp-readline/src/xma_internal.h
+../src/xma_socket.h
+/home/brant/cpp-readline/src/xma_socket.h
+../src/xma_timer.h
+/home/brant/cpp-readline/src/xma_timer.h
 
 /home/brant/cpp-readline/client/main.cpp
 iostream
@@ -85,8 +127,8 @@ thread
 /home/brant/cpp-readline/src/xma_application.h
 ../src/xma_process.h
 /home/brant/cpp-readline/src/xma_process.h
-client_process.hpp
-/home/brant/cpp-readline/client/client_process.hpp
+client_process.h
+/home/brant/cpp-readline/client/client_process.h
 
 /home/brant/cpp-readline/src/xma_application.h
 

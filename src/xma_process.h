@@ -72,7 +72,7 @@ public:
 	void Init() override;
 	void Main() override;
 	
-	bool SendMsg(Msg *msg);
+	bool SendMsg(Msg *msg) override;
 
 	bool SetTimer(Timer *t);
 	bool StopTimer(Timer *t);

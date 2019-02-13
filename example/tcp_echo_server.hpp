@@ -52,15 +52,19 @@ public:
       read_pkt++;
     }
 
-		if (last_uptime == 0) {
-			last_uptime = TimeUtil::GetTime();
-		}
+    if (last_uptime == 0) {
+      last_uptime = TimeUtil::GetTime();
+    }
 
-		uint32_t curr_time = TimeUtil::GetTime();
-		if (last_uptime + 3 < curr_time) {
-			std::cout << "Read==> bytes: " << read_bytes << " pkts: " << read_pkt << std::endl;
-			last_uptime = curr_time;
-		}
+    uint32_t curr_time = TimeUtil::GetTime();
+    if (last_uptime + 3 < curr_time) {
+      std::cout << "Read==> bytes: " << read_bytes << " pkts: " << read_pkt << std::endl;
+      last_uptime = curr_time;
+    }
+
+    if (len > 0) {
+      s->WriteMsg(buff, len);
+    }
 
     return true;
   }
@@ -97,7 +101,7 @@ public:
   void Timeout() override
   {
     if (server) {
-      //server->ShowStats();
+      server->ShowStats();
     }
     Set();
   }
@@ -131,7 +135,7 @@ public:
     return true;
   }
   
-	void OnInit() {
+	void OnInit() {    
 		//create local tcp echo server
 		server_ = new TcpEchoServer(Name(), this, 8196); 
     if (!server_->OpenServer(address_, port_, AF_INET)) {
@@ -180,6 +184,8 @@ public:
   }
 
   void OnInit() override {
+    assert (Thread::current_ == this);
+
     XMA_DEBUG("[%s]Process oninit...", Name().c_str());
     tcp_echo_svc_ = new TcpEchoService("127.0.0.1", 9527);
 		AddService(tcp_echo_svc_);

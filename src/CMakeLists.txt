@@ -15,6 +15,7 @@ set(xma_SRCS
 	xma_process.cpp
 	xma_epoll.cpp
 	xma_socket.cpp
+	xma_message.cpp
 )
 
 add_library(${lib_name} SHARED ${xma_SRCS})

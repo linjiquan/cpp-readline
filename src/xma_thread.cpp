@@ -60,6 +60,16 @@ ThreadList ThreadMgr::GetThreadList()
   return threads_;
 }
 
+Thread *ThreadMgr::GetThread(std::string &name)
+{
+  for (auto &t: threads_) {
+    if (t->Name() == name)
+      return t;
+  }
+
+  return nullptr;
+}
+
 void ThreadMgr::Exit()
 {
 	for (auto &t: threads_)
@@ -73,6 +83,8 @@ uint32_t ThreadMgr::GetThreadId()
 }
 
 ///----------------------------------Basic Thread------------------------------------------
+thread_local Thread* Thread::current_ = nullptr;
+
 std::string Thread::GetStrState() const  {
   XMA_CASE_STR_BIGIN(GetState());
   XMA_CASE_STR(State::Stopped);
@@ -122,6 +134,8 @@ uint64_t Thread::Tid() {
 
 void Thread::Run()
 {
+  current_ = this;
+  
   SetAffinity();	  
   Init();
 

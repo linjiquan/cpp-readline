@@ -28,6 +28,7 @@ namespace xma {
 class Thread;
 class Process;
 class Worker;
+class Msg;
 
 using ThreadList = std::vector<Thread *>;
 
@@ -43,6 +44,7 @@ public:
   static void List();
   static uint32_t GetThreadId();
   static void Exit();
+  static Thread *GetThread(std::string &name);
 
 private:
   static ThreadList threads_;
@@ -64,6 +66,9 @@ private:
 class Thread
 {
 public:
+  static thread_local Thread* current_;
+
+public:
   enum class State {
     Stopped = 0,    
     Running,       
@@ -76,6 +81,9 @@ public:
 
   virtual void Init() {};
   virtual void Main() {};
+  virtual bool SendMsg(Msg *msg) { 
+    throw std::runtime_error("not implemented");
+  }
 
   void Stop() { running_ = false; }
 

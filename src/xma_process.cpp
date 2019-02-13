@@ -19,8 +19,7 @@ ProcessMsgListener::~ProcessMsgListener() {
 
 void ProcessMsgListener::Dispatch(Msg *msg)
 {
-  XMA_DEBUG("%s: msg received: %p, %s", Name().c_str(), (void *)msg, msg->GetValue().c_str());
-  XMA_DEBUG("%s: free msg: %p", Name().c_str(), (void *)msg);  
+	msg->Exec();
   delete msg;
 }
 

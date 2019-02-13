@@ -17,44 +17,18 @@
 #include "../src/xma_shell.h"
 #include "../src/xma_application.h"
 #include "../src/xma_process.h"
-#include "client_service.hpp"
+#include "client_service.h"
 
 using namespace xma;
 
 class TcpClientProcess: public Process
 {
 public:
-  TcpClientProcess(): Process("TCP-Client", 0), client_(nullptr) {
-    XMA_DEBUG("[%s]Process starting...", Name().c_str());
-  }
+  TcpClientProcess();
+  ~TcpClientProcess();
 
-  ~TcpClientProcess() {
-	  if (client_ != nullptr) {
-		  delete client_;
-	  }
-  }
-
-  void RegisterCommand() override
-  {
-    Shell &s = Shell::Instance();
-
-    
-    s.RegisterCommand("Connect", "Connect to an echo server", [&] (ShellFuncArgs args) -> int {
-      if (args.size() != 3) {
-        std::cout << "Please input the server address and port" << std::endl;
-        return 0;
-      }
-
-      client_->StartClient(args[1], std::stoi(args[2]));
-
-      return 0;
-    });
-  }
-
-  void OnInit() override {
-	  client_ = new TcpClientService();
-	  AddService(client_);
-  }
+  void RegisterCommand() override;
+  void OnInit() override ;
 
 private:
   TcpClientService *client_;

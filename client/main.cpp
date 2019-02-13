@@ -9,7 +9,7 @@
 #include "../src/xma_shell.h"
 #include "../src/xma_application.h"
 #include "../src/xma_process.h"
-#include "client_process.hpp"
+#include "client_process.h"
 
 using namespace xma;
 

@@ -7,6 +7,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/brant/cpp-readline/src/xma_application.cpp" "/home/brant/cpp-readline/src/CMakeFiles/xma.dir/xma_application.cpp.o"
   "/home/brant/cpp-readline/src/xma_epoll.cpp" "/home/brant/cpp-readline/src/CMakeFiles/xma.dir/xma_epoll.cpp.o"
   "/home/brant/cpp-readline/src/xma_listener.cpp" "/home/brant/cpp-readline/src/CMakeFiles/xma.dir/xma_listener.cpp.o"
+  "/home/brant/cpp-readline/src/xma_message.cpp" "/home/brant/cpp-readline/src/CMakeFiles/xma.dir/xma_message.cpp.o"
   "/home/brant/cpp-readline/src/xma_process.cpp" "/home/brant/cpp-readline/src/CMakeFiles/xma.dir/xma_process.cpp.o"
   "/home/brant/cpp-readline/src/xma_service.cpp" "/home/brant/cpp-readline/src/CMakeFiles/xma.dir/xma_service.cpp.o"
   "/home/brant/cpp-readline/src/xma_shell.cpp" "/home/brant/cpp-readline/src/CMakeFiles/xma.dir/xma_shell.cpp.o"

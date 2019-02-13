@@ -35,6 +35,16 @@ src/CMakeFiles/xma.dir/xma_listener.cpp.o
  /home/brant/cpp-readline/src/xma_message.h
  /home/brant/cpp-readline/src/xma_service.h
  /home/brant/cpp-readline/src/xma_status.h
+src/CMakeFiles/xma.dir/xma_message.cpp.o
+ /home/brant/cpp-readline/src/xma_context.h
+ /home/brant/cpp-readline/src/xma_epoll.h
+ /home/brant/cpp-readline/src/xma_internal.h
+ /home/brant/cpp-readline/src/xma_listener.h
+ /home/brant/cpp-readline/src/xma_message.cpp
+ /home/brant/cpp-readline/src/xma_message.h
+ /home/brant/cpp-readline/src/xma_service.h
+ /home/brant/cpp-readline/src/xma_status.h
+ /home/brant/cpp-readline/src/xma_thread.h
 src/CMakeFiles/xma.dir/xma_process.cpp.o
  /home/brant/cpp-readline/src/xma_context.h
  /home/brant/cpp-readline/src/xma_epoll.h

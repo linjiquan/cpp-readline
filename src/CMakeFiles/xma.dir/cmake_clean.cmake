@@ -8,6 +8,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/xma.dir/xma_process.cpp.o"
   "CMakeFiles/xma.dir/xma_epoll.cpp.o"
   "CMakeFiles/xma.dir/xma_socket.cpp.o"
+  "CMakeFiles/xma.dir/xma_message.cpp.o"
   "libxma.pdb"
   "libxma.so"
   "libxma.so.0.1.0"

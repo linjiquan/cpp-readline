@@ -35,6 +35,16 @@ src/CMakeFiles/xma.dir/xma_listener.cpp.o: src/xma_message.h
 src/CMakeFiles/xma.dir/xma_listener.cpp.o: src/xma_service.h
 src/CMakeFiles/xma.dir/xma_listener.cpp.o: src/xma_status.h
 
+src/CMakeFiles/xma.dir/xma_message.cpp.o: src/xma_context.h
+src/CMakeFiles/xma.dir/xma_message.cpp.o: src/xma_epoll.h
+src/CMakeFiles/xma.dir/xma_message.cpp.o: src/xma_internal.h
+src/CMakeFiles/xma.dir/xma_message.cpp.o: src/xma_listener.h
+src/CMakeFiles/xma.dir/xma_message.cpp.o: src/xma_message.cpp
+src/CMakeFiles/xma.dir/xma_message.cpp.o: src/xma_message.h
+src/CMakeFiles/xma.dir/xma_message.cpp.o: src/xma_service.h
+src/CMakeFiles/xma.dir/xma_message.cpp.o: src/xma_status.h
+src/CMakeFiles/xma.dir/xma_message.cpp.o: src/xma_thread.h
+
 src/CMakeFiles/xma.dir/xma_process.cpp.o: src/xma_context.h
 src/CMakeFiles/xma.dir/xma_process.cpp.o: src/xma_epoll.h
 src/CMakeFiles/xma.dir/xma_process.cpp.o: src/xma_internal.h

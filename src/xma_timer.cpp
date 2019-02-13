@@ -54,11 +54,11 @@ Timer::Timer(std::string name, ListenerContainer c, Duration expire):Listener(na
 
 Timer::~Timer()
 {
-	if (status_ == Status::Actived)
-	{
-			assert (id_ > 0);
-			Stop();
-	}
+  if (status_ == Status::Actived)
+  {
+      assert (id_ > 0);
+      Stop();
+  }
 }
 
 bool Timer::Set()
