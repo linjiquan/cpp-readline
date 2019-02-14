@@ -36,8 +36,8 @@ using ThreadList = std::vector<Thread *>;
 class ThreadMgr
 {
 public:
-	ThreadMgr() = default;
-	~ThreadMgr() = default;
+  ThreadMgr() = default;
+  ~ThreadMgr() = default;
 
   static void Register(Thread* t);
   static ThreadList GetThreadList();
@@ -55,12 +55,12 @@ private:
 class ThreadContext: public Context
 {
 public:
-	ThreadContext() {}
-	~ThreadContext() {}
-	
-	Epoll &GetEpoll() { return epoll_; }
+  ThreadContext() {}
+  ~ThreadContext() {}
+  
+  Epoll &GetEpoll() { return epoll_; }
 private:
-	Epoll epoll_;
+  Epoll epoll_;
 };
 
 class Thread
@@ -73,7 +73,7 @@ public:
     Stopped = 0,    
     Running,       
     Sleeping
-  };	
+  };  
 
 
   Thread(std::string name, int32_t lcore);
@@ -87,7 +87,7 @@ public:
 
   void Stop() { running_ = false; }
 
-  const std::string& Name() { 	return name_; }
+  const std::string& Name() {   return name_; }
   int32_t GetRunningCore() { return lcore_; }
   uint32_t Id() { return id_; }
   uint64_t Tid();
@@ -115,18 +115,18 @@ private:
 class Worker: public Thread
 {
 public:
-	Worker(std::string name, int64_t cpu_set): Thread(name, cpu_set) {}
+  Worker(std::string name, int64_t cpu_set): Thread(name, cpu_set) {}
 
-	virtual void Init()
-	{
-		XMA_DEBUG("Worker initializing: %s", Name().c_str());
-	}
+  virtual void Init()
+  {
+    XMA_DEBUG("Worker initializing: %s", Name().c_str());
+  }
 
-	virtual void Main() 
-	{
-		XMA_DEBUG("Worker running: %s", Name().c_str());
-	    std::this_thread::sleep_for(std::chrono::seconds(2));
-	}
+  virtual void Main() 
+  {
+    XMA_DEBUG("Worker running: %s", Name().c_str());
+      std::this_thread::sleep_for(std::chrono::seconds(2));
+  }
 private:
 
 };

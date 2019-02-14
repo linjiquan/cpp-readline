@@ -17,22 +17,22 @@ namespace xma {
 class Mailbox
 {
 public:
-	Mailbox(){
-		_base = event_base_new();	
-	}
+  Mailbox(){
+    _base = event_base_new(); 
+  }
 
-	~Mailbox() {
-		event_base_free(_base);
-	}
-	
-	void Dispatch() {
-		event_base_dispatch(_base);
-	}
+  ~Mailbox() {
+    event_base_free(_base);
+  }
+  
+  void Dispatch() {
+    event_base_dispatch(_base);
+  }
 
 
 
 private:
-	event_base* _base;
-	//int _epll_fd;
+  event_base* _base;
+  //int _epll_fd;
 };
 }

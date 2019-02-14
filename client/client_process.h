@@ -31,7 +31,7 @@ public:
 
   void RegisterCommand() override;
   void OnInit() override ;
-	TcpClientService *GetClientService();
+  TcpClientService *GetClientService();
 
 private:
   TcpClientService *client_;

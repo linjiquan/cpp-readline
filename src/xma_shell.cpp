@@ -17,31 +17,31 @@
 #include "xma_shell.h"
 
 namespace xma {
-	
-	Shell::RegisteredCommands Shell::_commands;
-	
+  
+  Shell::RegisteredCommands Shell::_commands;
+  
     Shell::Shell(std::string &&prompt)
     {
-		_prompt = prompt;
-		
+    _prompt = prompt;
+    
         rl_attempted_completion_function = &Shell::CommandCompletion;
 
         // 默认命令
         RegisterCommand("help", "show this help", [&](ShellFuncArgs &) -> int{
             auto commands = this->_commands;
             std::cout << " Available commands are:\n";
-			
+      
             for ( auto & command : commands ) 
-				std::cout << "\t" << command.first << "\t" << command.second->help << std::endl;
-			
+        std::cout << "\t" << command.first << "\t" << command.second->help << std::endl;
+      
             return XS_SUCCESS;
         });
 
         RegisterCommand("quit", "quit the process", [&](ShellFuncArgs &) {
             return XS_QUIT;
         });
-		
-		Init();
+    
+    Init();
     }
 
     Shell::~Shell()
@@ -50,12 +50,12 @@ namespace xma {
             delete cmd.second;
     }
 
-	void Shell::Init() {
-		std::cout <<" ====================================================" << std::endl;
-		std::cout <<" Welcome to eXentible Message Architecture Framework." << std::endl;
-		std::cout <<" ====================================================" << std::endl;
-		std::cout << std::endl << std::endl << std::endl;
-	}
+  void Shell::Init() {
+    std::cout <<" ====================================================" << std::endl;
+    std::cout <<" Welcome to eXentible Message Architecture Framework." << std::endl;
+    std::cout <<" ====================================================" << std::endl;
+    std::cout << std::endl << std::endl << std::endl;
+  }
 
     void Shell::RegisterCommand(const std::string & command, const std::string & help, ShellFunc func) {
         ShellCommand *_cmd = new ShellCommand();
@@ -88,13 +88,13 @@ namespace xma {
         }
 
         if (inputs.size() == 0) 
-			return XS_SUCCESS;
+      return XS_SUCCESS;
 
-		auto it = _commands.find(inputs[0]);
-		if (it == _commands.end()) {
-			std::cout << "Command '" << inputs[0] << "' not found.\n";
-			return XS_INTRNL_ERR;
-		}
+    auto it = _commands.find(inputs[0]);
+    if (it == _commands.end()) {
+      std::cout << "Command '" << inputs[0] << "' not found.\n";
+      return XS_INTRNL_ERR;
+    }
         
         return static_cast<XmaStatus>((it->second->func)(inputs));
     }
@@ -105,27 +105,27 @@ namespace xma {
             std::cout << "Could not find the specified file to execute." << std::endl;
             return XS_INTRNL_ERR;
         }
-		
+    
         std::string command;
         int counter = 0, line = 0;
-		XmaStatus result;
+    XmaStatus result;
 
         while (std::getline(input, command)) {
-			++line;
-			
+      ++line;
+      
             if ( command[0] == '#' || command[0] == '/') 
-				continue;
-			
+        continue;
+      
             std::cout << "[" << counter << "] " << command << std::endl;
-			
-			result = ExecCommand(command);
+      
+      result = ExecCommand(command);
             if (result != XS_SUCCESS) {
-				std::cout << "Execute '" << command << "' " << "in line " << line << " failed" << std::endl;
-				return result;
-			}
-			
+        std::cout << "Execute '" << command << "' " << "in line " << line << " failed" << std::endl;
+        return result;
+      }
+      
             ++counter; 
-			std::cout << std::endl;
+      std::cout << std::endl;
         }
 
         return XS_SUCCESS;
@@ -148,31 +148,31 @@ namespace xma {
     }
 
 
-	void Shell::Run() {
-		
-		std::cout << " Shell command loop is launched, press '?' for help" << std::endl;
+  void Shell::Run() {
+    
+    std::cout << " Shell command loop is launched, press '?' for help" << std::endl;
 
-		XmaStatus ret;
-		while (true) {
-			ret = Readline();
-			switch (ret) {
-			case XS_QUIT: 
-				return ;
+    XmaStatus ret;
+    while (true) {
+      ret = Readline();
+      switch (ret) {
+      case XS_QUIT: 
+        return ;
 
-			case XS_SUCCESS:
-				SetPrompt("$");
-				break;
+      case XS_SUCCESS:
+        SetPrompt("$");
+        break;
 
-			case XS_INTRNL_ERR:
-				SetPrompt("!#");
-				break;
+      case XS_INTRNL_ERR:
+        SetPrompt("!#");
+        break;
 
-			default:
-				break;
+      default:
+        break;
 
-			}
-		}
-	}
+      }
+    }
+  }
 
 
     char **Shell::CommandCompletion(const char * text, int start, int end) {
@@ -185,10 +185,10 @@ namespace xma {
     }
 
     char * Shell::CommandGenerator(const char * text, int state) {
-		auto it = _commands.find(text);
-		if (it == _commands.end())
-			return nullptr;
-		
-		return strdup(it->first.c_str());
+    auto it = _commands.find(text);
+    if (it == _commands.end())
+      return nullptr;
+    
+    return strdup(it->first.c_str());
     }
 }

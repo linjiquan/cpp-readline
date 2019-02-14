@@ -28,11 +28,11 @@ namespace xma {
 class ProcessMsgListener: public EpollListener
 {  
 public:
-	ProcessMsgListener(std::string name, ListenerContainer c, int fd);
-	~ProcessMsgListener();
+  ProcessMsgListener(std::string name, ListenerContainer c, int fd);
+  ~ProcessMsgListener();
   
-	void Dispatch(Msg *);
-	bool DoHandle(void * data) override;
+  void Dispatch(Msg *);
+  bool DoHandle(void * data) override;
 };
 
 // each process should have one default process service
@@ -45,16 +45,16 @@ public:
 
   bool SendMsg(Msg *msg);
 
-//	int SetTimer(Duration d, void *data);
-//	void StopTimer(int timer_id);
+//  int SetTimer(Duration d, void *data);
+//  void StopTimer(int timer_id);
 
-	TimerMgr timer_mgr_;
+  TimerMgr timer_mgr_;
 
 private:
   void OnInit();
   void CreateMsgConveyers(); 
 #define msg_writer msgconveyers_[1]
-#define msg_reader msgconveyers_[0]	
+#define msg_reader msgconveyers_[0] 
   
 private:
   ProcessMsgListener *rdlistener_;
@@ -64,32 +64,32 @@ private:
 class Process: public Thread
 {
 public:
-	Process(std::string name, int32_t cpu_set): Thread(name, cpu_set) {}
-	virtual ~Process();
+  Process(std::string name, int32_t cpu_set): Thread(name, cpu_set) {}
+  virtual ~Process();
 
   virtual void RegisterCommand() {}
 
-	void Init() override;
-	void Main() override;
-	
-	bool SendMsg(Msg *msg) override;
+  void Init() override;
+  void Main() override;
+  
+  bool SendMsg(Msg *msg) override;
 
-	bool SetTimer(Timer *t);
-	bool StopTimer(Timer *t);
-	bool RestartTimer(Timer *t);
-	
-	void AddService(Service *svc) { svcs_.push_back(svc); }
-	void CreateMsgLienster();
-	TimerMgr &GetTimerMgr();
+  bool SetTimer(Timer *t);
+  bool StopTimer(Timer *t);
+  bool RestartTimer(Timer *t);
+  
+  void AddService(Service *svc) { svcs_.push_back(svc); }
+  void CreateMsgLienster();
+  TimerMgr &GetTimerMgr();
 
-	virtual void OnInit()  {
-		std::cout << "Basic Process OnInit()" << std::endl;
-	}
+  virtual void OnInit()  {
+    std::cout << "Basic Process OnInit()" << std::endl;
+  }
 
   uint32_t GetServiceCount() override;
-	
+  
 private:
-	ServiceList svcs_;
+  ServiceList svcs_;
   ProcessService *proc_svc_;//default service
 };
 

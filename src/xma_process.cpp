@@ -14,51 +14,51 @@ ProcessMsgListener::ProcessMsgListener(std::string name, ListenerContainer c, in
 }
 
 ProcessMsgListener::~ProcessMsgListener() {
-	XMA_DEBUG("~ProcessMsgLienster(): %s", Name().c_str());
+  XMA_DEBUG("~ProcessMsgLienster(): %s", Name().c_str());
 }
 
 void ProcessMsgListener::Dispatch(Msg *msg)
 {
-	msg->Exec();
+  msg->Exec();
   delete msg;
 }
 
 bool ProcessMsgListener::DoHandle(void * data)
 {
-	struct epoll_event *ee = (epoll_event *)data;
-	
-	assert (this == ee->data.ptr);
+  struct epoll_event *ee = (epoll_event *)data;
+  
+  assert (this == ee->data.ptr);
 
-	if (ee->events | EPOLLIN) {
-#define MSG_CNT	1
-		char *buff[MSG_CNT];
-		int nr = read(GetFd(), &buff, sizeof(buff));
-		if (-1 == nr) {
-			XMA_DEBUG("Read error: %s, err=%s", Name().c_str(), strerror(errno));
+  if (ee->events | EPOLLIN) {
+#define MSG_CNT 1
+    char *buff[MSG_CNT];
+    int nr = read(GetFd(), &buff, sizeof(buff));
+    if (-1 == nr) {
+      XMA_DEBUG("Read error: %s, err=%s", Name().c_str(), strerror(errno));
             return false;
-		} else if (nr % sizeof(buff[0])) {
-			XMA_DEBUG("Invalid message received: %s, bytes=%d", Name().c_str(), nr);
-			return false;
-		}
+    } else if (nr % sizeof(buff[0])) {
+      XMA_DEBUG("Invalid message received: %s, bytes=%d", Name().c_str(), nr);
+      return false;
+    }
 
-		int msg_cnt = nr / sizeof(buff[0]);
-		for (int i = 0; i < msg_cnt; ++i) {
-			Msg *msg = reinterpret_cast<Msg *>(buff[i]);
-			Dispatch(msg);
-		}
+    int msg_cnt = nr / sizeof(buff[0]);
+    for (int i = 0; i < msg_cnt; ++i) {
+      Msg *msg = reinterpret_cast<Msg *>(buff[i]);
+      Dispatch(msg);
+    }
 
-		return true;
-	} else if (ee->events | EPOLLOUT) {
-	//	int fd = ev->data.fd;
-	//	assert (fd == msg_writer);
+    return true;
+  } else if (ee->events | EPOLLOUT) {
+  //  int fd = ev->data.fd;
+  //  assert (fd == msg_writer);
 
-	//		write (fd, "1", 1);
-	} else {
-		std::cout << "Unknow event received, event=" << ee->events << std::endl;
-		return false;
-	}
-	
-	return true;
+  //    write (fd, "1", 1);
+  } else {
+    std::cout << "Unknow event received, event=" << ee->events << std::endl;
+    return false;
+  }
+  
+  return true;
 }
 
 ///-----------------------------Process service---------------------------------------
@@ -69,8 +69,8 @@ ProcessService::ProcessService(std::string name): Service(name), rdlistener_(nul
 ProcessService::~ProcessService()
 {
   // msg_reader is managered by the rdlistener_  
-	if (msg_writer)
-		::close(msg_writer);
+  if (msg_writer)
+    ::close(msg_writer);
 
   if (rdlistener_ != nullptr) {
     RemoveListener(rdlistener_);
@@ -91,42 +91,42 @@ void ProcessService::OnInit()
 
 void ProcessService::CreateMsgConveyers() 
 {
-	//create pipes for the inter process message
-	//In the kernel, the pipe is marked writable in select/poll/epoll
-	//only when the PIPE BUFFER is EMPTY, otherwise the pipe is ONLY marked
-	//readable. So I can't use the non-block mode for the writer
-	if (-1 == pipe (msgconveyers_)) {
-		throw std::runtime_error(std::string("Failed to create process msg listener, name:") + 
-			Name() + " err:" + strerror(errno));
-	}
+  //create pipes for the inter process message
+  //In the kernel, the pipe is marked writable in select/poll/epoll
+  //only when the PIPE BUFFER is EMPTY, otherwise the pipe is ONLY marked
+  //readable. So I can't use the non-block mode for the writer
+  if (-1 == pipe (msgconveyers_)) {
+    throw std::runtime_error(std::string("Failed to create process msg listener, name:") + 
+      Name() + " err:" + strerror(errno));
+  }
 
-	int val;
-	if (-1 == (val = fcntl(msg_reader, F_GETFL, 0))) {
-		throw std::runtime_error(std::string("Failed to create process msg listener, name:") + 
-			Name() + " err:" + strerror(errno));
-	}
+  int val;
+  if (-1 == (val = fcntl(msg_reader, F_GETFL, 0))) {
+    throw std::runtime_error(std::string("Failed to create process msg listener, name:") + 
+      Name() + " err:" + strerror(errno));
+  }
 
-	if (-1 == fcntl(msg_reader, F_SETFL, val | O_NONBLOCK)) {
-		throw std::runtime_error(std::string("Failed to create process msg listener, name:") + 
-			Name() + " err:" + strerror(errno));
-	}
+  if (-1 == fcntl(msg_reader, F_SETFL, val | O_NONBLOCK)) {
+    throw std::runtime_error(std::string("Failed to create process msg listener, name:") + 
+      Name() + " err:" + strerror(errno));
+  }
 }
 
 bool ProcessService::SendMsg(Msg *msg)
 {
-	if (msg == nullptr)
-		return true;
+  if (msg == nullptr)
+    return true;
 
-	//send the message pointer
-	int n = write(msg_writer, &msg, sizeof(msg));
-	if (-1 == n) {
-		XMA_DEBUG("Send msg failed: %p, err: %s", static_cast<void *>(msg), strerror(errno));
-		return false;
-	}
+  //send the message pointer
+  int n = write(msg_writer, &msg, sizeof(msg));
+  if (-1 == n) {
+    XMA_DEBUG("Send msg failed: %p, err: %s", static_cast<void *>(msg), strerror(errno));
+    return false;
+  }
 
-	XMA_DEBUG("Send msg done: %p, size: %d", static_cast<void *>(msg), n);
-	
-	return true;  
+  XMA_DEBUG("Send msg done: %p, size: %d", static_cast<void *>(msg), n);
+  
+  return true;  
 }
 
 
@@ -145,22 +145,22 @@ uint32_t Process::GetServiceCount()
 }
 
 void Process::Init() {
-	XMA_DEBUG("[%s]Process init...", Name().c_str());
+  XMA_DEBUG("[%s]Process init...", Name().c_str());
 
-	//add the default service
-	proc_svc_ = new ProcessService(Name() + "/service*");
-	XMA_DEBUG("[%s] default service is %p", Name().c_str(), (void *)proc_svc_);
+  //add the default service
+  proc_svc_ = new ProcessService(Name() + "/service*");
+  XMA_DEBUG("[%s] default service is %p", Name().c_str(), (void *)proc_svc_);
 
   AddService(proc_svc_);
   
-	OnInit();
-	
-	for (auto &s: svcs_) 
-		s->Init(this);
+  OnInit();
+  
+  for (auto &s: svcs_) 
+    s->Init(this);
 
-	RegisterCommand();
-	
-	XMA_DEBUG("[%s]Service started: size=%lu", Name().c_str(), svcs_.size());
+  RegisterCommand();
+  
+  XMA_DEBUG("[%s]Service started: size=%lu", Name().c_str(), svcs_.size());
 }
 
 bool Process::SendMsg(Msg *msg)
@@ -171,31 +171,31 @@ bool Process::SendMsg(Msg *msg)
 
 TimerMgr &Process::GetTimerMgr()
 {
-	assert (proc_svc_ != nullptr);
-	return proc_svc_->timer_mgr_;
+  assert (proc_svc_ != nullptr);
+  return proc_svc_->timer_mgr_;
 }
 
 bool Process::SetTimer(Timer *t)
 {
-	assert (proc_svc_ != nullptr);
+  assert (proc_svc_ != nullptr);
 
-	return proc_svc_->timer_mgr_.SetTimer(t);
+  return proc_svc_->timer_mgr_.SetTimer(t);
 }
 
 bool Process::StopTimer(Timer *t)
 {
-	assert (proc_svc_ != nullptr);
+  assert (proc_svc_ != nullptr);
 
-	return proc_svc_->timer_mgr_.StopTimer(t);
+  return proc_svc_->timer_mgr_.StopTimer(t);
 }
 bool Process::RestartTimer(Timer *t)
 {
-	assert (proc_svc_ != nullptr);
+  assert (proc_svc_ != nullptr);
 
-	if (StopTimer(t) != true)
-		return false;
-	
-	return SetTimer(t);
+  if (StopTimer(t) != true)
+    return false;
+  
+  return SetTimer(t);
 }
 
 void Process::Main() {

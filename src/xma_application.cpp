@@ -42,7 +42,7 @@ void Application::Exit()
 
 //change the currently thread to xma thread
 //tbd
-void Application::Init() {	
+void Application::Init() {  
   xma::Shell &c = xma::Shell::Instance();
 
   static xma::Process ____init____("Init", 0);

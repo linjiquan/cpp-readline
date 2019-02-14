@@ -76,7 +76,7 @@ TcpClientService::TcpClientService() : Service("TcpClientService")
 {
 }
 
-	
+  
 TcpClientService::~TcpClientService() {
 
   if (client_ != nullptr)

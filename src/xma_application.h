@@ -6,13 +6,13 @@ class Application
 {
 public:
 
-	Application() = default;
-	~Application() = default;
+  Application() = default;
+  ~Application() = default;
 
-	//change the currently thread to xma thread
-	static void Init();
-	static void Run();
-	static void Exit();
+  //change the currently thread to xma thread
+  static void Init();
+  static void Run();
+  static void Exit();
   
   static void ListThread();
 

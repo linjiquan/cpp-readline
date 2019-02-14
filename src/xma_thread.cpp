@@ -72,8 +72,8 @@ Thread *ThreadMgr::GetThread(std::string &name)
 
 void ThreadMgr::Exit()
 {
-	for (auto &t: threads_)
-		t->Stop();
+  for (auto &t: threads_)
+    t->Stop();
 }
 
 uint32_t ThreadMgr::GetThreadId()
@@ -122,27 +122,27 @@ void Thread::SetAffinity() {
 }
 
 uint64_t Thread::Tid() {
-	std::stringstream ss;
-	ss << std::this_thread::get_id();
-	try {
-		return std::stoull(ss.str());
-	} catch (std::exception &e) {
-		XMA_DEBUG("Can't get thread id, %s", e.what());
-		return -1;
-	}
+  std::stringstream ss;
+  ss << std::this_thread::get_id();
+  try {
+    return std::stoull(ss.str());
+  } catch (std::exception &e) {
+    XMA_DEBUG("Can't get thread id, %s", e.what());
+    return -1;
+  }
 }
 
 void Thread::Run()
 {
   current_ = this;
   
-  SetAffinity();	  
+  SetAffinity();    
   Init();
 
   SetState(State::Running);
   
   while (running_) {
-	Main();
+  Main();
   }
 
   SetState(State::Stopped);

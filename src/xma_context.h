@@ -5,8 +5,8 @@ namespace xma {
 // Basic context wrapper
 class Context {
 public:
-	Context() {}
-	~Context() {}
+  Context() {}
+  ~Context() {}
 private:
 
 };

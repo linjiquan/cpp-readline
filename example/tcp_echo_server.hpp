@@ -30,9 +30,9 @@ class TcpEchoListener: public Listener
 {
 public:
   TcpEchoListener(TcpSocket *s): Listener(s->Name() + "/receiver", s->GetContainer())
-	{
-		last_uptime = 0;
-	}
+  {
+    last_uptime = 0;
+  }
 
   bool DoHandle(void *data) override 
   {
@@ -81,13 +81,13 @@ private:
 class TcpEchoServer: public TcpSocket
 {
 public:
-	TcpEchoServer(std::string name, ListenerContainer c, uint32_t len): TcpSocket(name, c, len)
+  TcpEchoServer(std::string name, ListenerContainer c, uint32_t len): TcpSocket(name, c, len)
   {
     std::cout << "TCP echo server created." << std::endl;
   } 
 
   bool OnAccept(StreamSocket *stream_socket) override { 
-		TcpSocket *s = dynamic_cast<TcpSocket *>(stream_socket);	
+    TcpSocket *s = dynamic_cast<TcpSocket *>(stream_socket);  
     s->SetReceiver(new TcpEchoListener(s));
     streams_.push_back(std::make_shared<TcpSocket>(*s));
     return true;
@@ -114,11 +114,11 @@ public:
 class TcpEchoService: public Service
 {
 public:
-	TcpEchoService(std::string address, uint16_t port) : 
-		Service("TcpEchoServer") {
-		address_ = address;
-		port_ = port;
-	}
+  TcpEchoService(std::string address, uint16_t port) : 
+    Service("TcpEchoServer") {
+    address_ = address;
+    port_ = port;
+  }
 
   ~TcpEchoService() {
      if (stats_report_timer_) {
@@ -137,9 +137,9 @@ public:
     return true;
   }
   
-	void OnInit() {    
-		//create local tcp echo server
-		server_ = new TcpEchoServer(Name(), this, 8196); 
+  void OnInit() {    
+    //create local tcp echo server
+    server_ = new TcpEchoServer(Name(), this, 8196); 
     if (!server_->OpenServer(address_, port_, AF_INET)) {
       throw std::runtime_error("Start TCP echo server failed.");
     }
@@ -190,8 +190,8 @@ public:
 
     XMA_DEBUG("[%s]Process oninit...", Name().c_str());
     tcp_echo_svc_ = new TcpEchoService("127.0.0.1", 9527);
-		AddService(tcp_echo_svc_);
-	}
+    AddService(tcp_echo_svc_);
+  }
   
   TcpEchoService *tcp_echo_svc_;
 };

@@ -55,21 +55,21 @@ void Socket::ShowStats()
 {
   #define _w (30)
 
-	std::cout << XMA_LEFT_OUTPUT(_w) << "rx_pkts" << stats_.rx_pkts << std::endl;  
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_pkts" << stats_.tx_pkts << std::endl;
-	std::cout << XMA_LEFT_OUTPUT(_w) << "rx_bytes" << stats_.rx_bytes << std::endl;  
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_bytes" << stats_.tx_bytes << std::endl;  
-	std::cout << XMA_LEFT_OUTPUT(_w) << "rx_pkts_err" << stats_.rx_pkts_err << std::endl;  
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_pkts_err" << stats_.tx_pkts_err << std::endl;
-	std::cout << XMA_LEFT_OUTPUT(_w) << "rx_bytes_err" << stats_.rx_bytes_err << std::endl;  
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_bytes_err" << stats_.tx_bytes_err << std::endl;  
-	std::cout << XMA_LEFT_OUTPUT(_w) << "rx_err" << stats_.rx_err << std::endl;
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_err" << stats_.tx_err << std::endl;  
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_partial" << stats_.tx_partial << std::endl; //it is used for measure the network quality
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_eagin" << stats_.tx_eagin << std::endl; //it is used for measure the network quality
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_cache" << stats_.tx_cache << std::endl; //it is used for measure the network quality
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_cache_bytes" << stats_.tx_cache_bytes << std::endl; //it is used for measure the network quality
-	std::cout << XMA_LEFT_OUTPUT(_w) << "tx_direct" << stats_.tx_direct << std::endl;
+  std::cout << XMA_LEFT_OUTPUT(_w) << "rx_pkts" << stats_.rx_pkts << std::endl;  
+  std::cout << XMA_LEFT_OUTPUT(_w) << "tx_pkts" << stats_.tx_pkts << std::endl;
+  std::cout << XMA_LEFT_OUTPUT(_w) << "rx_bytes" << stats_.rx_bytes << std::endl;  
+  std::cout << XMA_LEFT_OUTPUT(_w) << "tx_bytes" << stats_.tx_bytes << std::endl;  
+  std::cout << XMA_LEFT_OUTPUT(_w) << "rx_pkts_err" << stats_.rx_pkts_err << std::endl;  
+  std::cout << XMA_LEFT_OUTPUT(_w) << "tx_pkts_err" << stats_.tx_pkts_err << std::endl;
+  std::cout << XMA_LEFT_OUTPUT(_w) << "rx_bytes_err" << stats_.rx_bytes_err << std::endl;  
+  std::cout << XMA_LEFT_OUTPUT(_w) << "tx_bytes_err" << stats_.tx_bytes_err << std::endl;  
+  std::cout << XMA_LEFT_OUTPUT(_w) << "rx_err" << stats_.rx_err << std::endl;
+  std::cout << XMA_LEFT_OUTPUT(_w) << "tx_err" << stats_.tx_err << std::endl;  
+  std::cout << XMA_LEFT_OUTPUT(_w) << "tx_partial" << stats_.tx_partial << std::endl; //it is used for measure the network quality
+  std::cout << XMA_LEFT_OUTPUT(_w) << "tx_eagin" << stats_.tx_eagin << std::endl; //it is used for measure the network quality
+  std::cout << XMA_LEFT_OUTPUT(_w) << "tx_cache" << stats_.tx_cache << std::endl; //it is used for measure the network quality
+  std::cout << XMA_LEFT_OUTPUT(_w) << "tx_cache_bytes" << stats_.tx_cache_bytes << std::endl; //it is used for measure the network quality
+  std::cout << XMA_LEFT_OUTPUT(_w) << "tx_direct" << stats_.tx_direct << std::endl;
   std::cout << XMA_LEFT_OUTPUT(_w) << "buff_full" << stats_.buff_full << std::endl;
   std::cout << XMA_LEFT_OUTPUT(_w) << "accepted" << stats_.accepted << std::endl;
   std::cout << XMA_LEFT_OUTPUT(_w) << "accepted_failed" << stats_.accepted_failed << std::endl;
@@ -92,26 +92,26 @@ Socket::Socket(std::string name, ListenerContainer c): EpollListener(name, c) {
 }
 bool Socket::StoreAddrInfo()
 {
-	struct sockaddr_in sa;
+  struct sockaddr_in sa;
   socklen_t socklen = sizeof(sa);
-	int ret = ::getsockname(GetFd(), (struct sockaddr *)&sa, &socklen);
-	if (ret == -1) {
-		XMA_DEBUG("[%s]Connected, getsockname failed. err:%s",\
-				Name().c_str(), strerror(errno));
-		return false;
-	}
+  int ret = ::getsockname(GetFd(), (struct sockaddr *)&sa, &socklen);
+  if (ret == -1) {
+    XMA_DEBUG("[%s]Connected, getsockname failed. err:%s",\
+        Name().c_str(), strerror(errno));
+    return false;
+  }
 
-	SetPort(ntohs (sa.sin_port));
-	SetAddr(inet_ntoa(sa.sin_addr));
+  SetPort(ntohs (sa.sin_port));
+  SetAddr(inet_ntoa(sa.sin_addr));
 
 
   memset(&sa, 0, sizeof(sa));
   ret = ::getpeername(GetFd(), (struct sockaddr *)&sa, &socklen);
   if(ret == -1)
   {  
-		XMA_DEBUG("[%s]Connected, getpeername failed. err:%s",\
-				Name().c_str(), strerror(errno));
-		return false;
+    XMA_DEBUG("[%s]Connected, getpeername failed. err:%s",\
+        Name().c_str(), strerror(errno));
+    return false;
   }
 
   SetPeerAddr(inet_ntoa(sa.sin_addr));
@@ -276,7 +276,7 @@ Socket(name, c), rx_buff(1, STREAM_RWBUFLEN(len) * 2),
 tx_buff(0.7, STREAM_RWBUFLEN(len) * 2)
 {
   receiver_ = nullptr;
-	Init();
+  Init();
 }
 
 StreamSocket::~StreamSocket()
@@ -304,15 +304,15 @@ void StreamSocket::SetTxSize(uint32_t size)
 
 void StreamSocket::Init()
 {
-	SetState(State::CREATED);
-	rx_buff.setIndex(0);
-	tx_buff.setIndex(0);
+  SetState(State::CREATED);
+  rx_buff.setIndex(0);
+  tx_buff.setIndex(0);
 }
 
 void StreamSocket::Reset() 
 {
   Close();
-	Init();
+  Init();
 }
 
 bool StreamSocket::OnRead()
@@ -426,26 +426,26 @@ int StreamSocket::DoWrite()
 
 int StreamSocket::WriteMsg(const char* msg, uint32_t len) {
   int ret = -1;
-	if (msg == nullptr || len == 0) {
+  if (msg == nullptr || len == 0) {
     stats_.tx_pkts_err++;
-		SetErr(Error::PARAM_ERR);
-		return -1;
-	}
-	if (GetState() != State::CONNECTED) {    
+    SetErr(Error::PARAM_ERR);
+    return -1;
+  }
+  if (GetState() != State::CONNECTED) {    
     stats_.tx_pkts_err++;    
     stats_.tx_bytes_err += len;
-		SetErr(Error::NOT_READY);
-		return -1;
-	}
+    SetErr(Error::NOT_READY);
+    return -1;
+  }
 
-	//always try to send out the cached data first
+  //always try to send out the cached data first
   if (tx_buff.getIndex() > 0 && DoWrite() < 0) {
     stats_.tx_pkts_err++;    
     stats_.tx_bytes_err += len;    
-		return -1;
-	}
+    return -1;
+  }
 
-	if (tx_buff.getIndex() > 0){ // still has data in the cache, then append the new data to cache
+  if (tx_buff.getIndex() > 0){ // still has data in the cache, then append the new data to cache
     DO_CACHE_MSG(msg, len);
     return ret;
   } else {
@@ -507,14 +507,14 @@ int StreamSocket::DoRead(char *buff, uint32_t len)
 int StreamSocket::ReadMsg(char* msg, uint32_t len)
 {
   int ret = -1;
-	if (msg == nullptr || len == 0 || len > MAX_STREAM_READ) {
-		SetErr(Error::PARAM_ERR);
-		return 0;
-	}
-	if (GetState() != State::CONNECTED && GetState() != State::FULL) {
-		SetErr(Error::NOT_READY);
-		return 0;
-	}
+  if (msg == nullptr || len == 0 || len > MAX_STREAM_READ) {
+    SetErr(Error::PARAM_ERR);
+    return 0;
+  }
+  if (GetState() != State::CONNECTED && GetState() != State::FULL) {
+    SetErr(Error::NOT_READY);
+    return 0;
+  }
 
 #if 0 
   // no cached data, read directly
@@ -665,34 +665,34 @@ bool TcpSocket::OpenClient(const std::string & peer_addr, uint16_t peer_port, in
   if (fd < 0) {
     XMA_DEBUG("[%s]Start client fail, socket() fail, err:%s", Name().c_str(), strerror(errno));
     SetState(State::FAILED);
-		SetErr(Error::SYS_ERR);
-		return false;
+    SetErr(Error::SYS_ERR);
+    return false;
   }
 
   int sock_buf_size = 1024 * 1024;
   if (0 != ::setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*) &sock_buf_size, sizeof(sock_buf_size))) {
     XMA_DEBUG("setsockopt SO_SNDBUF error:%d,%s\n", errno, strerror(errno));
-		SetState(State::FAILED);
-		SetErr(Error::SYS_ERR);
-		::close(fd);
-		return false;
+    SetState(State::FAILED);
+    SetErr(Error::SYS_ERR);
+    ::close(fd);
+    return false;
   }
 
   int on = 1;
   if (0 != setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on))) {
     XMA_DEBUG("setsockopt TCP_NODELAY error:%d,%s\n", errno, strerror(errno));
-		SetState(State::FAILED);
-		SetErr(Error::SYS_ERR);
-		::close(fd);
-		return false;
+    SetState(State::FAILED);
+    SetErr(Error::SYS_ERR);
+    ::close(fd);
+    return false;
   }
 
   if (0 != setsockopt(fd, IPPROTO_TCP, TCP_QUICKACK, &on, sizeof(on))) {
     XMA_DEBUG("setsockopt TCP_QUICKACK error:%d,%s\n", errno, strerror(errno));
-		SetState(State::FAILED);
-		SetErr(Error::SYS_ERR);
-		::close(fd);
-		return false;
+    SetState(State::FAILED);
+    SetErr(Error::SYS_ERR);
+    ::close(fd);
+    return false;
     // printf("setsockopt error\n");
   }
 
@@ -707,8 +707,8 @@ bool TcpSocket::OpenClient(const std::string & peer_addr, uint16_t peer_port, in
   if (iret < 0) {
     if (errno != EINPROGRESS) {
       XMA_DEBUG("png_openclient connect error:[%d:%s]", errno, strerror(errno));
-			SetState(State::FAILED);
-			SetErr(Error::SYS_ERR);
+      SetState(State::FAILED);
+      SetErr(Error::SYS_ERR);
       ::close(fd);
       return false;
     }
@@ -718,17 +718,17 @@ bool TcpSocket::OpenClient(const std::string & peer_addr, uint16_t peer_port, in
   Start(fd);
   if (!SetEvents(EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP)) {  //未连接需要判断可读可写事件
       XMA_DEBUG("[%s] add connect events failed, error:[%d:%s]",\
-					Name().c_str(), errno, strerror(errno));
-			SetState(State::FAILED);
-			SetErr(Error::SYS_ERR);
+          Name().c_str(), errno, strerror(errno));
+      SetState(State::FAILED);
+      SetErr(Error::SYS_ERR);
       Reset();
       return false;
-	}	
+  } 
 
   SetPeerAddr(peer_addr);
   SetPeerPort(peer_port);
   
-	return true;
+  return true;
 }
 
 StreamSocket *TcpSocket::OnCreate(int fd)

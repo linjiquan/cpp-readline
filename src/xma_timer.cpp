@@ -24,32 +24,32 @@ uint32_t TimeUtil::GetTime()
 
 uint64_t TimeUtil::GetMsecs()
 {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return (uint64_t)(tv.tv_sec)*1000 + tv.tv_usec/1000;
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return (uint64_t)(tv.tv_sec)*1000 + tv.tv_usec/1000;
 }
 std::string TimeUtil::TimeToStr(Timepoint t)
 {
-	auto time = Clock::to_time_t(t);
-	struct tm ltm;
-	localtime_r(&time, &ltm);
+  auto time = Clock::to_time_t(t);
+  struct tm ltm;
+  localtime_r(&time, &ltm);
 
-	char tstr[13]; // "22:05:43.313"
-	strftime(tstr, sizeof(tstr), "%H:%M:%S", &ltm);
+  char tstr[13]; // "22:05:43.313"
+  strftime(tstr, sizeof(tstr), "%H:%M:%S", &ltm);
 
-	auto milliseconds = std::chrono::duration_cast<Milliseconds>( t.time_since_epoch() ) - std::chrono::duration_cast<Seconds>(t.time_since_epoch());
+  auto milliseconds = std::chrono::duration_cast<Milliseconds>( t.time_since_epoch() ) - std::chrono::duration_cast<Seconds>(t.time_since_epoch());
 
-	sprintf(tstr + 8, ".%03ld", milliseconds.count());
+  sprintf(tstr + 8, ".%03ld", milliseconds.count());
 
-	return std::string(tstr);
+  return std::string(tstr);
 }
 ///-----------------Timer----------------------------
 Timer::Timer(std::string name, ListenerContainer c, Duration expire):Listener(name, c) 
 {
-	status_ = Status::Deactived;
-	expire_ = expire;
-	id_ = c->GetContext()->GetTimerMgr().GetId();
-	XMA_DEBUG("[%s]Create timer, duration: %lu", Name().c_str(), expire_.count());
+  status_ = Status::Deactived;
+  expire_ = expire;
+  id_ = c->GetContext()->GetTimerMgr().GetId();
+  XMA_DEBUG("[%s]Create timer, duration: %lu", Name().c_str(), expire_.count());
 }
 
 Timer::~Timer()
@@ -77,33 +77,33 @@ bool Timer::Set()
 
 bool Timer::Stop()
 {
-	assert (GetId() > 0 && status_ == Status::Actived);
+  assert (GetId() > 0 && status_ == Status::Actived);
 
-	if (GetContainer()->GetContext()->StopTimer(this)) {
-		status_ = Status::Deactived;
-		return true;
-	}
+  if (GetContainer()->GetContext()->StopTimer(this)) {
+    status_ = Status::Deactived;
+    return true;
+  }
 
-	return false;
+  return false;
 }
 
 bool Timer::Restart()
 {
-	return GetContainer()->GetContext()->RestartTimer(this);
+  return GetContainer()->GetContext()->RestartTimer(this);
 }
 
 bool Timer::DoHandle(void *data) 
 {
-	if (data != this) {
-		XMA_DEBUG("Unknown timer %p", data);
-		return false;
-	}
+  if (data != this) {
+    XMA_DEBUG("Unknown timer %p", data);
+    return false;
+  }
 
-	status_ = Status::Deactived;
+  status_ = Status::Deactived;
 
-	Timeout();
+  Timeout();
 
-	return true;
+  return true;
 }
 
 ///----------------Timer server-----------------------
@@ -113,12 +113,12 @@ TimerMgr::TimerMgr():id_(0)
 
 bool TimerMgr::SetTimer(Timer *t)
 {
-	auto it = std::find_if(timers_.begin(), timers_.end(), 
-			[t](const Timer *o) { return t->GetTimepoint() < o->GetTimepoint();  } );
+  auto it = std::find_if(timers_.begin(), timers_.end(), 
+      [t](const Timer *o) { return t->GetTimepoint() < o->GetTimepoint();  } );
 
-	timers_.emplace(it, t);
-	
-	return true;
+  timers_.emplace(it, t);
+  
+  return true;
 }
 
 bool TimerMgr::StopTimer(Timer *t)

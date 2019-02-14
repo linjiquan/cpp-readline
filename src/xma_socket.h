@@ -33,21 +33,21 @@ class StreamSocket;
 
 struct SocketStats
 {
-	uint64_t rx_pkts;  
-	uint64_t tx_pkts;
-	uint64_t rx_bytes;  
-	uint64_t tx_bytes;  
-	uint64_t rx_pkts_err;  
-	uint64_t tx_pkts_err;
-	uint64_t rx_bytes_err;  
-	uint64_t tx_bytes_err;  
-	uint64_t tx_err;  
-	uint64_t rx_err;
-	uint64_t tx_partial; //it is used for measure the network quality
-	uint64_t tx_eagin; //it is used for measure the network quality
-	uint64_t tx_cache; //it is used for measure the network quality
-	uint64_t tx_cache_bytes; //it is used for measure the network quality
-	uint64_t tx_direct;
+  uint64_t rx_pkts;  
+  uint64_t tx_pkts;
+  uint64_t rx_bytes;  
+  uint64_t tx_bytes;  
+  uint64_t rx_pkts_err;  
+  uint64_t tx_pkts_err;
+  uint64_t rx_bytes_err;  
+  uint64_t tx_bytes_err;  
+  uint64_t tx_err;  
+  uint64_t rx_err;
+  uint64_t tx_partial; //it is used for measure the network quality
+  uint64_t tx_eagin; //it is used for measure the network quality
+  uint64_t tx_cache; //it is used for measure the network quality
+  uint64_t tx_cache_bytes; //it is used for measure the network quality
+  uint64_t tx_direct;
   uint64_t buff_full;
   uint64_t accepted;
   uint64_t accepted_failed;
@@ -66,38 +66,38 @@ struct SocketStats
 class Socket : public EpollListener
 {
 public:
-	Socket(std::string name, ListenerContainer c);
-	virtual ~Socket() {}
+  Socket(std::string name, ListenerContainer c);
+  virtual ~Socket() {}
 
 
-	enum class State
-	{
+  enum class State
+  {
     CREATED, LISTENING, CONNECTING, CONNECTED, FULL, FAILED
-	};
+  };
 
   enum class Error
-	{
+  {
     NO_ERR, SYS_ERR, PARAM_ERR, NO_SPACE, PEER_CLOSED, READ_FAIL, 
     WRITE_FAIL, STATE_ERR, NOT_READY, UNKNOWN_EVENT, 
-	};
+  };
 
   
-	bool DoHandle(void * data) override;
+  bool DoHandle(void * data) override;
 
-	/// Send a message with length, the message may be cached internal
-	/// On success, it return the length that sent
-	/// On error, <0 is returned, and errno is set appropriately.
-	///       The last err desc can be retrieved by GetErr()
-	virtual int WriteMsg(const char* msg, uint32_t len) = 0;
+  /// Send a message with length, the message may be cached internal
+  /// On success, it return the length that sent
+  /// On error, <0 is returned, and errno is set appropriately.
+  ///       The last err desc can be retrieved by GetErr()
+  virtual int WriteMsg(const char* msg, uint32_t len) = 0;
 
   /// Read a completed message with the len
-	/// On success, it return the length that read
-	/// On error: 0 means data is not ready, app can read it later
-	///           <0 means error, and errno is set appropriately.
-	virtual int ReadMsg(char* msg, uint32_t len) = 0;
+  /// On success, it return the length that read
+  /// On error: 0 means data is not ready, app can read it later
+  ///           <0 means error, and errno is set appropriately.
+  virtual int ReadMsg(char* msg, uint32_t len) = 0;
   
-	virtual bool OpenClient(const std::string& peer_addr, uint16_t peer_port, int af);
-	virtual bool OpenServer(const std::string& addr, uint16_t port, int af);
+  virtual bool OpenClient(const std::string& peer_addr, uint16_t peer_port, int af);
+  virtual bool OpenServer(const std::string& addr, uint16_t port, int af);
 
 
   /// event sequence:
@@ -146,24 +146,24 @@ public:
   void ResetStats();
   void ShowStats();
 
-	State GetState() const { return state_; }
-	void SetState( State state ) { state_ = state; }
-	std::string GetStrState() const;
+  State GetState() const { return state_; }
+  void SetState( State state ) { state_ = state; }
+  std::string GetStrState() const;
 
-	void SetErr(Error err) { last_err_ = err;}
-	Error GetErr() const { return last_err_; }
-	std::string GetStrErr() const;
+  void SetErr(Error err) { last_err_ = err;}
+  Error GetErr() const { return last_err_; }
+  std::string GetStrErr() const;
 
-	uint16_t GetPort() { return port_; }
-	uint16_t GetPeerPort() { return peer_port_; }
-	const std::string & GetAddr() { return addr_; }
-	const std::string & GetPeerAddr() { return peer_addr_; }
+  uint16_t GetPort() { return port_; }
+  uint16_t GetPeerPort() { return peer_port_; }
+  const std::string & GetAddr() { return addr_; }
+  const std::string & GetPeerAddr() { return peer_addr_; }
 
-	void SetPort(uint16_t port) { port_ = port; }
-	void SetPeerPort(uint16_t port) { peer_port_ = port; }
-	void SetAddr(const std::string & addr) { addr_ = addr; }
-	void SetPeerAddr(const std::string & addr) { peer_addr_ = addr; }
-	
+  void SetPort(uint16_t port) { port_ = port; }
+  void SetPeerPort(uint16_t port) { peer_port_ = port; }
+  void SetAddr(const std::string & addr) { addr_ = addr; }
+  void SetPeerAddr(const std::string & addr) { peer_addr_ = addr; }
+  
 protected:
   virtual bool Accept() = 0;
   virtual bool Write()   = 0;
@@ -181,11 +181,11 @@ private:
   bool DoListen(uint events);
   
 private:
-	uint16_t port_;   
-	uint16_t peer_port_; 
-	std::string addr_;              
-	std::string peer_addr_;        
-	State state_;    
+  uint16_t port_;   
+  uint16_t peer_port_; 
+  std::string addr_;              
+  std::string peer_addr_;        
+  State state_;    
   Error last_err_;
   uint32_t create_timestamp_;
 };
@@ -208,8 +208,8 @@ public:
   /// in the future, we can use the message cache, not buffer cache
   /// it should be implemented in the application layer
   /// as only application know how to handle the retry action
-	int WriteMsg(const char* msg, uint32_t len) override;
-	int ReadMsg(char* msg, uint32_t len) override;
+  int WriteMsg(const char* msg, uint32_t len) override;
+  int ReadMsg(char* msg, uint32_t len) override;
   bool Write() override;
   bool Read() override;
 
@@ -217,7 +217,7 @@ public:
   virtual bool OnRead() override;
 
   void Reset();
-	void Init();
+  void Init();
 
   uint32_t GetInitBuffLen() { return buff_len; }
   
@@ -241,11 +241,11 @@ private:
 class TcpSocket: public StreamSocket
 {
 public:
-	TcpSocket(std::string name, ListenerContainer c, uint32_t len): StreamSocket(name, c, len) {}
-	virtual ~TcpSocket() {}
+  TcpSocket(std::string name, ListenerContainer c, uint32_t len): StreamSocket(name, c, len) {}
+  virtual ~TcpSocket() {}
 
-	virtual bool OpenClient(const std::string & peer_addr, uint16_t peer_port, int af) override;
-	virtual bool OpenServer(const std::string & addr, uint16_t port, int af) override;
+  virtual bool OpenClient(const std::string & peer_addr, uint16_t peer_port, int af) override;
+  virtual bool OpenServer(const std::string & addr, uint16_t port, int af) override;
   virtual StreamSocket *OnCreate(int fd) override;
   bool Accept() override;
 private:

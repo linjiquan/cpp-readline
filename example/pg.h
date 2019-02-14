@@ -12,11 +12,11 @@ using namespace xma;
 class PacketGenerator: public Service
 {
 public:
-	PacketGenerator(std::string name): Service(name) {}
+  PacketGenerator(std::string name): Service(name) {}
 
-	void OnInit() {
-		//Create the basic socket
-	}
+  void OnInit() {
+    //Create the basic socket
+  }
 
 
 };
