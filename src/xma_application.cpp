@@ -47,13 +47,13 @@ void Application::Init() {
   });
 
   c.RegisterCommand("ListListener", "List all listeners", [](const std::vector<std::string> &) -> int {
-    std::cout << "Version: 0.0.1" << std::endl;  
-    std::cout << "Build time: " << __DATE__ << "  " << __TIME__ << std::endl;
+    Listener::List();
     return 0;
   });
 
   c.RegisterCommand("Version", "Show version", [](const std::vector<std::string> &) -> int {
-    Listener::List();
+    std::cout << "Version: 0.0.1" << std::endl;  
+    std::cout << "Build time: " << __DATE__ << "  " << __TIME__ << std::endl;
     return 0;
   });
 

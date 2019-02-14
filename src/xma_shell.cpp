@@ -128,7 +128,7 @@ namespace xma {
       std::cout << std::endl;
     }
 
-    return XS_SUCCESS;S
+    return XS_SUCCESS;
   }
 
   XmaStatus Shell::Readline() {
