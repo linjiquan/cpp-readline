@@ -152,6 +152,33 @@ main.cpp.s:
 	cd /home/brant/cpp-readline && $(MAKE) -f example/CMakeFiles/cpp_readline.dir/build.make example/CMakeFiles/cpp_readline.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+server_process.o: server_process.cpp.o
+
+.PHONY : server_process.o
+
+# target to build an object file
+server_process.cpp.o:
+	cd /home/brant/cpp-readline && $(MAKE) -f example/CMakeFiles/cpp_readline.dir/build.make example/CMakeFiles/cpp_readline.dir/server_process.cpp.o
+.PHONY : server_process.cpp.o
+
+server_process.i: server_process.cpp.i
+
+.PHONY : server_process.i
+
+# target to preprocess a source file
+server_process.cpp.i:
+	cd /home/brant/cpp-readline && $(MAKE) -f example/CMakeFiles/cpp_readline.dir/build.make example/CMakeFiles/cpp_readline.dir/server_process.cpp.i
+.PHONY : server_process.cpp.i
+
+server_process.s: server_process.cpp.s
+
+.PHONY : server_process.s
+
+# target to generate assembly for a file
+server_process.cpp.s:
+	cd /home/brant/cpp-readline && $(MAKE) -f example/CMakeFiles/cpp_readline.dir/build.make example/CMakeFiles/cpp_readline.dir/server_process.cpp.s
+.PHONY : server_process.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -164,6 +191,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... server_process.o"
+	@echo "... server_process.i"
+	@echo "... server_process.s"
 .PHONY : help
 
 

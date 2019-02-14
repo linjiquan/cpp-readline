@@ -33,13 +33,11 @@ TcpClientProcess::~TcpClientProcess() {
   }
 }
 
-void TcpClientProcess::RegisterCommand()
+void TcpClientProcess::OnShell(Shell &shell)
 {
   assert (Thread::current_ == this);
 
-  Shell &s = Shell::Instance();
-
-  s.RegisterCommand("Connect", "Connect to an echo server", [&] (ShellFuncArgs args) -> int {
+  shell.RegisterCommand("Connect", "Connect to an echo server", [&] (ShellFuncArgs args) -> int {
     if (args.size() != 3) {
       std::cout << "Please input the server address and port" << std::endl;
       return 0;
@@ -55,12 +53,12 @@ void TcpClientProcess::RegisterCommand()
     return 0;
   });
 
-  s.RegisterCommand("Disconnect", "Disconnect the current connection", [&] (ShellFuncArgs args) -> int {
+  shell.RegisterCommand("Disconnect", "Disconnect the current connection", [&] (ShellFuncArgs args) -> int {
     Msg::Send(TCP_CLIENT_PROC, new StopConnect());
     return 0;
   });
 
-  s.RegisterCommand("ShowStats", "Show the current connection stats", [&] (ShellFuncArgs args) -> int {
+  shell.RegisterCommand("ShowStats", "Show the current connection stats", [&] (ShellFuncArgs args) -> int {
     this->GetClientService()->ShowStats();
     return 0;
   });

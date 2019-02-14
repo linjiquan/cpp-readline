@@ -78,6 +78,9 @@ void Application::Init() {
 void Application::Run() {
   xma::Shell &c = xma::Shell::Instance();
 
+  ThreadMgr::Run();
+
+  // the call should be invoked after the all thread running
   c.Run();
 
   Exit();

@@ -22,6 +22,8 @@
 #include "xma_thread.h"
 #include "xma_message.h"
 #include "xma_timer.h"
+#include "xma_shell.h"
+
 namespace xma {
 
 
@@ -67,7 +69,7 @@ public:
   Process(std::string name, int32_t cpu_set): Thread(name, cpu_set) {}
   virtual ~Process();
 
-  virtual void RegisterCommand() {}
+  virtual void OnShell(Shell &shell) {}
 
   void Init() override;
   void Main() override;
@@ -81,10 +83,6 @@ public:
   void AddService(Service *svc) { svcs_.push_back(svc); }
   void CreateMsgLienster();
   TimerMgr &GetTimerMgr();
-
-  virtual void OnInit()  {
-    std::cout << "Basic Process OnInit()" << std::endl;
-  }
 
   uint32_t GetServiceCount() override;
   

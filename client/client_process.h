@@ -29,8 +29,10 @@ public:
   TcpClientProcess();
   ~TcpClientProcess();
 
-  void RegisterCommand() override;
+  void OnShell(Shell &shell) override;
+
   void OnInit() override ;
+
   TcpClientService *GetClientService();
 
 private:

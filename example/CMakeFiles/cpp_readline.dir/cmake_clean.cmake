@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/cpp_readline.dir/main.cpp.o"
+  "CMakeFiles/cpp_readline.dir/server_process.cpp.o"
   "cpp_readline.pdb"
   "cpp_readline"
 )

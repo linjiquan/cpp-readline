@@ -235,6 +235,8 @@ xma_message.h
 /home/brant/cpp-readline/src/xma_message.h
 xma_timer.h
 /home/brant/cpp-readline/src/xma_timer.h
+xma_shell.h
+/home/brant/cpp-readline/src/xma_shell.h
 
 /home/brant/cpp-readline/src/xma_service.h
 list

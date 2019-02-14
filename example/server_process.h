@@ -20,7 +20,7 @@ public:
 
   TcpEchoService *GetService();
 
-  void RegisterCommand() override;
+  void OnShell(Shell &shell) override;
   void OnInit() override;
   
   TcpEchoService *tcp_echo_svc_{nullptr};

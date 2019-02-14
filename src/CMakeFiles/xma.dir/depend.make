@@ -23,6 +23,7 @@ src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_listener.h
 src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_message.h
 src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_process.h
 src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_service.h
+src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_shell.h
 src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_status.h
 src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_thread.h
 src/CMakeFiles/xma.dir/xma_epoll.cpp.o: src/xma_timer.h
@@ -53,6 +54,7 @@ src/CMakeFiles/xma.dir/xma_process.cpp.o: src/xma_message.h
 src/CMakeFiles/xma.dir/xma_process.cpp.o: src/xma_process.cpp
 src/CMakeFiles/xma.dir/xma_process.cpp.o: src/xma_process.h
 src/CMakeFiles/xma.dir/xma_process.cpp.o: src/xma_service.h
+src/CMakeFiles/xma.dir/xma_process.cpp.o: src/xma_shell.h
 src/CMakeFiles/xma.dir/xma_process.cpp.o: src/xma_status.h
 src/CMakeFiles/xma.dir/xma_process.cpp.o: src/xma_thread.h
 src/CMakeFiles/xma.dir/xma_process.cpp.o: src/xma_timer.h
@@ -65,6 +67,7 @@ src/CMakeFiles/xma.dir/xma_service.cpp.o: src/xma_message.h
 src/CMakeFiles/xma.dir/xma_service.cpp.o: src/xma_process.h
 src/CMakeFiles/xma.dir/xma_service.cpp.o: src/xma_service.cpp
 src/CMakeFiles/xma.dir/xma_service.cpp.o: src/xma_service.h
+src/CMakeFiles/xma.dir/xma_service.cpp.o: src/xma_shell.h
 src/CMakeFiles/xma.dir/xma_service.cpp.o: src/xma_status.h
 src/CMakeFiles/xma.dir/xma_service.cpp.o: src/xma_thread.h
 src/CMakeFiles/xma.dir/xma_service.cpp.o: src/xma_timer.h
@@ -81,6 +84,7 @@ src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_listener.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_message.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_process.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_service.h
+src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_shell.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_socket.cpp
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_socket.h
 src/CMakeFiles/xma.dir/xma_socket.cpp.o: src/xma_socket_cache.h
@@ -105,6 +109,7 @@ src/CMakeFiles/xma.dir/xma_timer.cpp.o: src/xma_listener.h
 src/CMakeFiles/xma.dir/xma_timer.cpp.o: src/xma_message.h
 src/CMakeFiles/xma.dir/xma_timer.cpp.o: src/xma_process.h
 src/CMakeFiles/xma.dir/xma_timer.cpp.o: src/xma_service.h
+src/CMakeFiles/xma.dir/xma_timer.cpp.o: src/xma_shell.h
 src/CMakeFiles/xma.dir/xma_timer.cpp.o: src/xma_status.h
 src/CMakeFiles/xma.dir/xma_timer.cpp.o: src/xma_thread.h
 src/CMakeFiles/xma.dir/xma_timer.cpp.o: src/xma_timer.cpp

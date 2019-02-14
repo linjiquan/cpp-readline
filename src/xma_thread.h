@@ -45,6 +45,7 @@ public:
   static uint32_t GetThreadId();
   static void Exit();
   static Thread *GetThread(std::string &name);
+	static void Run();
 
 private:
   static ThreadList threads_;
@@ -65,6 +66,10 @@ private:
 
 class Thread
 {
+	friend class Process;
+	friend class Worker;
+	friend class ThreadMgr;
+
 public:
   static thread_local Thread* current_;
 
@@ -79,11 +84,15 @@ public:
   Thread(std::string name, int32_t lcore);
   virtual ~Thread();
 
-  virtual void Init() {};
-  virtual void Main() {};
-  virtual bool SendMsg(Msg *msg) { 
-    throw std::runtime_error("not implemented");
-  }
+	// Wired on the thread created, its thread context is not ready.
+  virtual void OnCreate();
+
+	// Wired on the thread initializing, its thread context is ready.
+	// This method will be running on the thread context
+  virtual void OnInit();
+
+	
+  virtual bool SendMsg(Msg *msg);
 
   void Stop() { running_ = false; }
 
@@ -97,10 +106,19 @@ public:
   bool IsRunning() { return running_; }
   std::string GetStrState() const;
   virtual uint32_t GetServiceCount() { return 0; }
+
+protected:
+	void Create();
+	void Run();
+	
+  virtual void Init() {};
+  virtual void Main() {};
+
+	
 private:
-  void Run();
-  void SetAffinity();
-  
+	void DoRun();
+	void SetAffinity();
+	
 private:
   ThreadContext context_;
   std::string name_;

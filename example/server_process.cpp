@@ -34,11 +34,9 @@ TcpEchoService *TcpEchoProcess::GetService()
   return tcp_echo_svc_;
 }
 
-void TcpEchoProcess::RegisterCommand()
+void TcpEchoProcess::OnShell(Shell &shell)
 {
-  Shell &s = Shell::Instance();
-
-  s.RegisterCommand("StartServer", "Start an echo server", [&] (ShellFuncArgs args) -> int {
+  shell.RegisterCommand("StartServer", "Start an echo server", [&] (ShellFuncArgs args) -> int {
     if (args.size() != 3) {
       std::cout << "Please input the server address and port" << std::endl;
       return 0;
@@ -54,12 +52,12 @@ void TcpEchoProcess::RegisterCommand()
     return 0;
   });
 
-  s.RegisterCommand("StopServer", "Stop server", [&] (ShellFuncArgs args) -> int {
+  shell.RegisterCommand("StopServer", "Stop server", [&] (ShellFuncArgs args) -> int {
     Msg::Send(TCP_SERVER_PROC, new StopServer());
     return 0;
   });
 
-  s.RegisterCommand("ShowStats", "Show the current server stats", [&] (ShellFuncArgs args) -> int {
+  shell.RegisterCommand("ShowStats", "Show the current server stats", [&] (ShellFuncArgs args) -> int {
     this->GetService()->ShowStats();
     return 0;
   });

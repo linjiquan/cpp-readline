@@ -158,7 +158,7 @@ void Process::Init() {
   for (auto &s: svcs_) 
     s->Init(this);
 
-  RegisterCommand();
+  OnShell(Shell::Instance());
   
   XMA_DEBUG("[%s]Service started: size=%lu", Name().c_str(), svcs_.size());
 }

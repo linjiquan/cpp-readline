@@ -48,6 +48,19 @@ void ThreadMgr::List()
 
 }
 
+void ThreadMgr::Run()
+{
+  std::unique_lock<std::mutex> lock(threads_mutex_);
+
+  for (auto &t: threads_) {    
+    t->Create();
+  }
+
+  for (auto &t: threads_) {    
+    t->Run();
+  }
+}
+
 
 void ThreadMgr::Register(Thread* t)
 {
@@ -101,14 +114,22 @@ Thread::Thread(std::string name, int32_t lcore): name_(name), lcore_(lcore), run
   SetState(State::Stopped);
 
   ThreadMgr::Register(this);
-
-  thread_ = std::thread(&Thread::Run, this);
 }
 
 Thread::~Thread()
 {
     if (thread_.joinable()) 
       thread_.join();
+}
+
+void Thread::Create()
+{
+  OnCreate();
+}
+
+void Thread::Run()
+{
+  thread_ = std::thread(&Thread::DoRun, this);
 }
 
 void Thread::SetAffinity() {
@@ -132,7 +153,7 @@ uint64_t Thread::Tid() {
   }
 }
 
-void Thread::Run()
+void Thread::DoRun()
 {
   current_ = this;
   
@@ -142,10 +163,24 @@ void Thread::Run()
   SetState(State::Running);
   
   while (running_) {
-  Main();
+    Main();
   }
 
   SetState(State::Stopped);
+}
+
+bool Thread::SendMsg(Msg *msg) { 
+  throw std::runtime_error("not implemented");
+}
+
+void Thread::OnInit()  
+{
+  XMA_DEBUG("[%s]Basic thread OnInit().", Name().c_str());
+}
+
+void Thread::OnCreate()
+{
+  XMA_DEBUG("[%s] created.", Name().c_str());
 }
 
 } //namespace xma
