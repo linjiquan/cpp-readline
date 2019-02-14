@@ -9,7 +9,7 @@
 #include "../src/xma_shell.h"
 #include "../src/xma_application.h"
 #include "../src/xma_process.h"
-#include "tcp_echo_server.hpp"
+#include "server_process.h"
 
 using namespace xma;
 
