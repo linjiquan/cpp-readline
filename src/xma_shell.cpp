@@ -17,38 +17,38 @@
 #include "xma_shell.h"
 
 namespace xma {
-  
+
   Shell::RegisteredCommands Shell::_commands;
-  
-    Shell::Shell(std::string &&prompt)
-    {
+
+  Shell::Shell(std::string &&prompt)
+  {
     _prompt = prompt;
-    
-        rl_attempted_completion_function = &Shell::CommandCompletion;
 
-        // 默认命令
-        RegisterCommand("help", "show this help", [&](ShellFuncArgs &) -> int{
-            auto commands = this->_commands;
-            std::cout << " Available commands are:\n";
-      
-            for ( auto & command : commands ) 
+    rl_attempted_completion_function = &Shell::CommandCompletion;
+
+    // 默认命令
+    RegisterCommand("help", "show this help", [&](ShellFuncArgs &) -> int{
+      auto commands = this->_commands;
+      std::cout << " Available commands are:\n";
+
+      for ( auto & command : commands ) 
         std::cout << "\t" << command.first << "\t" << command.second->help << std::endl;
-      
-            return XS_SUCCESS;
-        });
 
-        RegisterCommand("quit", "quit the process", [&](ShellFuncArgs &) {
-            return XS_QUIT;
-        });
-    
+      return XS_SUCCESS;
+    });
+
+    RegisterCommand("quit", "quit the process", [&](ShellFuncArgs &) {
+        return XS_QUIT;
+    });
+
     Init();
-    }
+  }
 
-    Shell::~Shell()
-    {
-        for (auto &cmd: _commands)
-            delete cmd.second;
-    }
+  Shell::~Shell()
+  {
+      for (auto &cmd: _commands)
+          delete cmd.second;
+  }
 
   void Shell::Init() {
     std::cout <<" ====================================================" << std::endl;
@@ -57,38 +57,38 @@ namespace xma {
     std::cout << std::endl << std::endl << std::endl;
   }
 
-    void Shell::RegisterCommand(const std::string & command, const std::string & help, ShellFunc func) {
-        ShellCommand *_cmd = new ShellCommand();
+  void Shell::RegisterCommand(const std::string & command, const std::string & help, ShellFunc func) {
+    ShellCommand *_cmd = new ShellCommand();
 
-        _cmd->name = command;
-        _cmd->help = help;
-        _cmd->func = func;
+    _cmd->name = command;
+    _cmd->help = help;
+    _cmd->func = func;
 
-        std::unique_lock<std::mutex> lock(_mutex);
-        _commands[command] = _cmd;
+    std::unique_lock<std::mutex> lock(_mutex);
+    _commands[command] = _cmd;
+  }
+
+
+  void Shell::SetPrompt(const std::string & prompt) {
+    _prompt = prompt;
+  }
+
+  std::string Shell::GetPrompt() const {
+    return _prompt;
+  }
+
+  XmaStatus Shell::ExecCommand(const std::string & command) {
+    // Convert input to vector
+    std::vector<std::string> inputs;
+    {
+        std::istringstream iss(command);
+        std::copy(std::istream_iterator<std::string>(iss),
+                std::istream_iterator<std::string>(),
+                std::back_inserter(inputs));
     }
 
-
-    void Shell::SetPrompt(const std::string & prompt) {
-        _prompt = prompt;
-    }
-
-    std::string Shell::GetPrompt() const {
-        return _prompt;
-    }
-
-    XmaStatus Shell::ExecCommand(const std::string & command) {
-        // Convert input to vector
-        std::vector<std::string> inputs;
-        {
-            std::istringstream iss(command);
-            std::copy(std::istream_iterator<std::string>(iss),
-                    std::istream_iterator<std::string>(),
-                    std::back_inserter(inputs));
-        }
-
-        if (inputs.size() == 0) 
-      return XS_SUCCESS;
+    if (inputs.size() == 0) 
+    return XS_SUCCESS;
 
     auto it = _commands.find(inputs[0]);
     if (it == _commands.end()) {
@@ -96,56 +96,56 @@ namespace xma {
       return XS_INTRNL_ERR;
     }
         
-        return static_cast<XmaStatus>((it->second->func)(inputs));
+    return static_cast<XmaStatus>((it->second->func)(inputs));
+  }
+
+  XmaStatus Shell::ExecFile(const std::string & filename) {
+    std::ifstream input(filename);
+    if ( ! input ) {
+      std::cout << "Could not find the specified file to execute." << std::endl;
+      return XS_INTRNL_ERR;
     }
 
-    XmaStatus Shell::ExecFile(const std::string & filename) {
-        std::ifstream input(filename);
-        if ( ! input ) {
-            std::cout << "Could not find the specified file to execute." << std::endl;
-            return XS_INTRNL_ERR;
-        }
-    
-        std::string command;
-        int counter = 0, line = 0;
+    std::string command;
+    int counter = 0, line = 0;
     XmaStatus result;
 
-        while (std::getline(input, command)) {
+    while (std::getline(input, command)) {
       ++line;
-      
-            if ( command[0] == '#' || command[0] == '/') 
-        continue;
-      
-            std::cout << "[" << counter << "] " << command << std::endl;
-      
+
+      if ( command[0] == '#' || command[0] == '/') 
+      continue;
+
+      std::cout << "[" << counter << "] " << command << std::endl;
+
       result = ExecCommand(command);
-            if (result != XS_SUCCESS) {
+      if (result != XS_SUCCESS) {
         std::cout << "Execute '" << command << "' " << "in line " << line << " failed" << std::endl;
         return result;
       }
-      
-            ++counter; 
+
+      ++counter; 
       std::cout << std::endl;
-        }
-
-        return XS_SUCCESS;
     }
 
-    XmaStatus Shell::Readline() {
-        char * buffer = readline(GetPrompt().c_str());
-        if (!buffer) {
-            std::cout << std::endl;
-            return XS_QUIT;
-        }
+    return XS_SUCCESS;S
+  }
 
-        if (buffer[0] != '\0')
-            add_history(buffer);
-
-        std::string line(buffer);
-        free(buffer);
-
-        return ExecCommand(line);
+  XmaStatus Shell::Readline() {
+    char * buffer = readline(GetPrompt().c_str());
+    if (!buffer) {
+      std::cout << std::endl;
+      return XS_QUIT;
     }
+
+    if (buffer[0] != '\0')
+      add_history(buffer);
+
+    std::string line(buffer);
+    free(buffer);
+
+    return ExecCommand(line);
+  }
 
 
   void Shell::Run() {
@@ -175,20 +175,20 @@ namespace xma {
   }
 
 
-    char **Shell::CommandCompletion(const char * text, int start, int end) {
-        char ** matches = nullptr;
+  char **Shell::CommandCompletion(const char * text, int start, int end) {
+    char ** matches = nullptr;
 
-        if ( start == 0 )
-            matches = rl_completion_matches(text, &Shell::CommandGenerator);
+    if ( start == 0 )
+      matches = rl_completion_matches(text, &Shell::CommandGenerator);
 
-        return matches;
-    }
+    return matches;
+  }
 
-    char * Shell::CommandGenerator(const char * text, int state) {
+  char * Shell::CommandGenerator(const char * text, int state) {
     auto it = _commands.find(text);
     if (it == _commands.end())
       return nullptr;
-    
+
     return strdup(it->first.c_str());
-    }
+  }
 }

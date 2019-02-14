@@ -20,21 +20,6 @@
 
 namespace xma {
 
-//
-void Application::ListThread()
-{
-  ThreadList threads = ThreadMgr::GetThreadList();
-
-  printf ("Thread number: %lu\n", threads.size());
-  printf ("%-5s %-20s %-5s %-20s %-10s\n", "Id", "Name", "Lcore", "Tid", "State");
-
-  for (auto &t: threads) {
-    printf ("%-5u %-20s %-5u %-20lu %-10s\n", t->Id(), t->Name().c_str(), \
-      t->GetRunningCore(), t->Tid(), t->GetStrState().c_str());
-  }
-}
-
-
 void Application::Exit()
 {
   ThreadMgr::Exit();
@@ -52,7 +37,7 @@ void Application::Init() {
   Thread::current_ = &____init____;
 
   c.RegisterCommand("ListThread", "List all threads", [](const std::vector<std::string> &) -> int {
-    ListThread();
+    ThreadMgr::List();
     return 0;
   });
 
@@ -62,6 +47,12 @@ void Application::Init() {
   });
 
   c.RegisterCommand("ListListener", "List all listeners", [](const std::vector<std::string> &) -> int {
+    std::cout << "Version: 0.0.1" << std::endl;  
+    std::cout << "Build time: " << __DATE__ << "  " << __TIME__ << std::endl;
+    return 0;
+  });
+
+  c.RegisterCommand("Version", "Show version", [](const std::vector<std::string> &) -> int {
     Listener::List();
     return 0;
   });

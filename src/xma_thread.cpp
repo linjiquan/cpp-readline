@@ -22,13 +22,13 @@ void ThreadMgr::List()
 
   std::cout << "Thread number: " << threads_.size() << std::endl;
 
-#define _W (30)
+#define _W (20)
 
   std::cout 
      << XMA_LEFT_OUTPUT(_W) << "Id" 
      << XMA_LEFT_OUTPUT(_W) << "Name"
      << XMA_LEFT_OUTPUT(_W) << "Lcore"
-     << XMA_LEFT_OUTPUT(_W) << "TID"
+//     << XMA_LEFT_OUTPUT(_W) << "TID"
      << XMA_LEFT_OUTPUT(_W) << "SVCs"   
      << XMA_LEFT_OUTPUT(_W) << "State" 
      << std::endl;
@@ -39,7 +39,7 @@ void ThreadMgr::List()
       << XMA_LEFT_OUTPUT(_W) << t->Id()  
       << XMA_LEFT_OUTPUT(_W) << t->Name()  
       << XMA_LEFT_OUTPUT(_W) << t->GetRunningCore()
-      << XMA_LEFT_OUTPUT(_W) << t->Tid()
+//      << XMA_LEFT_OUTPUT(_W) << t->Tid()
       << XMA_LEFT_OUTPUT(_W) << t->GetServiceCount()
       << XMA_LEFT_OUTPUT(_W) << t->GetStrState()
       << std::endl;

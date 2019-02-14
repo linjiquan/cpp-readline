@@ -86,7 +86,6 @@ namespace xma {
       XMA_DEBUG("[%s] Epoll object is null.", Name().c_str());
       return false;
     }
-
     
     return true;
   }

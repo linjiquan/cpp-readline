@@ -6,11 +6,10 @@
 
 // Linux
 #include <sys/types.h>
-#include <sys/socket.h>         // SOCK_STREAM, AF_INET, AF_INET6, AF_UNSPEC, getsockname(), send((), recv(), SO_REUSEADDR, SOL_SOCKET, setsockopt(), getsockopt(), SO_ERROR
-#include <netinet/in.h>         // sockaddr_in, htons(), ntohs(), IN6ADDR_ANY_INIT, SOL_IPV6, IPV6_V6ONLY
+#include <sys/socket.h>
 #include <netinet/ip.h>
-#include <arpa/inet.h>          // inet_pton(), inet_ntoa()
-#include <netdb.h>              // AI_PASSIVE, NI_NUMERICHOST, getnameinfo(), getaddrinfo(), getprotobynumber()
+#include <arpa/inet.h>
+#include <netdb.h>
 
 
 // Internal
