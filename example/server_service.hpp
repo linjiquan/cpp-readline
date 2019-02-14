@@ -95,6 +95,7 @@ private:
   std::vector<std::shared_ptr<TcpSocket>> streams_;
 };
 
+#if 0
 class ReportStatsTimer:public Timer
 {
 public:
@@ -109,6 +110,7 @@ public:
 
   TcpEchoServer *server{nullptr};
 };
+#endif
 
 class TcpEchoService: public Service
 {
@@ -120,13 +122,6 @@ public:
   }
 
   ~TcpEchoService() {
-     if (stats_report_timer_) {
-      delete stats_report_timer_;
-     }
-      
-      if (server_) {
-        delete server_;
-      }
   }
 
   bool OnSocketErr(Socket *s) override
@@ -136,23 +131,54 @@ public:
     return true;
   }
   
-  void OnInit() {    
+  bool StartServer(std::string addr, uint16_t port)
+  {
+    if (server_ != nullptr) {
+      std::cout << "Server is runing, please stop it first." << std::endl;
+      return false;
+    }
+
+    address_ = addr;
+    port_ = port;
+
     //create local tcp echo server
     server_ = new TcpEchoServer(Name(), this, 8196); 
     if (!server_->OpenServer(address_, port_, AF_INET)) {
-      throw std::runtime_error("Start TCP echo server failed.");
+      std::cout << "Start TCP echo server failed." << strerror(errno) << std::endl;
+      delete server_;
+      server_ = nullptr;
+      return false;
     }
     
     std::cout << "TCP echo server is listening on : " << address_ << ":" << port_ << std::endl;
     std::cout << "Listen FD=" << server_->GetFd() << std::endl;
 
-    stats_report_timer_ = new ReportStatsTimer("TcpEchoServerReportTimer", this, Duration(3000));
-    stats_report_timer_->server = server_;
-    if (stats_report_timer_->Set()) {
-      std::cout << "TCP echo server report timer is started..." << std::endl;
-    } else {
-      std::cout << "TCP echo server report timer started failed." << std::endl;
+    return true;
+  }
+
+  bool StopServer()
+  {
+    if (server_ == nullptr) {
+      std::cout << "Server is not runing." << std::endl;
+      return false;
     }
+
+    delete server_;
+    server_ = nullptr;
+    return true;
+  }
+
+  void ShowStats()
+  {
+    if (server_ == nullptr) {
+      return ;
+    }
+
+    server_->ShowStats();
+  }
+
+  void OnInit() {    
+    std::cout << "Service is runing..." << Name() << std::endl;
   }
 
 
@@ -160,38 +186,5 @@ private:
   TcpEchoServer* server_{nullptr};
   std::string address_;
   uint16_t port_;
-  ReportStatsTimer *stats_report_timer_{nullptr};
-};
-
-class TcpEchoProcess: public Process
-{
-public:
-  TcpEchoProcess(): Process("TCP-Echo", 0) {
-    XMA_DEBUG("[%s]Process starting...", Name().c_str());
-  }
-
-  ~TcpEchoProcess() {
-    if (tcp_echo_svc_)
-      delete tcp_echo_svc_;
-  }
-
-  void RegisterCommand() override
-  {
-    Shell &s = Shell::Instance();
-    s.RegisterCommand("StartEchoServer", "Start an echo server", [&] (ShellFuncArgs args) -> int {
-      std::cout << "not implemented yet." << std::endl;
-      return 0;
-    });
-  }
-
-  void OnInit() override {
-    assert (Thread::current_ == this);
-
-    XMA_DEBUG("[%s]Process oninit...", Name().c_str());
-    tcp_echo_svc_ = new TcpEchoService("127.0.0.1", 9527);
-    AddService(tcp_echo_svc_);
-  }
-  
-  TcpEchoService *tcp_echo_svc_;
 };
 
